@@ -1,9 +1,16 @@
+package index;
+
 import java.io.*;
 import java.util.*;
 
 
 import org.w3c.dom.*;   
 import org.wltea.analyzer.lucene.IKAnalyzer;
+
+import lucene.SimpleSimilarity;
+import util.ConfReader;
+import util.FileOperator;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -71,10 +78,6 @@ public class ImageIndexer {
 				Field PicPathField  =   new  Field( "picPath" ,locate.getNodeValue(),Field.Store.YES, Field.Index.NO);
 				Field abstractField  =   new  Field( "abstract" ,absString,Field.Store.YES, Field.Index.ANALYZED);
 				
-				//TODO: add other fields such as html title or html content 
-				// String currentDir = System.getProperty("user.dir");
-			    // System.out.println("Current dir using System:" +currentDir);
-				// String root = "/home/cunxinshuihua/workspace/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/webapps/";
 				// root是pictures/sogou文件夹的绝对路径，可自行配置
 				String root = "/home/cunxinshuihua/tomcat8/webapps/";
 				String picPath = root + locate.getNodeValue();
@@ -103,9 +106,20 @@ public class ImageIndexer {
 	}
 	
 	public static void main(String[] args) {
-		ImageIndexer indexer=new ImageIndexer("forIndex/index");
-		indexer.indexSpecialFile("input/sogou-utf8.xml");
-		indexer.saveGlobals("forIndex/global.txt");
+		Map<String, String> confs = new HashMap<String, String>();
+		ConfReader.confRead("conf/indexer.conf", confs);
+		String indexDir, globalDir, srcDir;
+		
+		if ((indexDir = confs.get("IndexDir")) == null)
+			indexDir = "forIndex/index";
+		if ((globalDir = confs.get("GlobalDir")) == null)
+			globalDir = "forIndex/global.txt";
+		if ((srcDir = confs.get("SrcDir")) == null)
+			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
+		
+		ImageIndexer indexer=new ImageIndexer(indexDir);
+		indexer.indexSpecialFile(srcDir);
+		indexer.saveGlobals(globalDir);
 	}
 	
 	public static String readHTML(String picPath, boolean debug) {

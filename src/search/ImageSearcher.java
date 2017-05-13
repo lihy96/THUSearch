@@ -1,3 +1,5 @@
+package search;
+
 import java.io.*;
 import java.io.IOException;
 
@@ -18,6 +20,9 @@ import org.apache.lucene.search.Weight;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
+
+import lucene.SimpleQuery;
+import lucene.SimpleSimilarity;
 
 public class ImageSearcher {
 	private IndexReader reader;
