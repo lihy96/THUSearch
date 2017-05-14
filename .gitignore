@@ -1,4 +1,6 @@
-/build/
+build/
+forIndex/
+lib/heritrix*
 .settings/
 .classpath
 .project
