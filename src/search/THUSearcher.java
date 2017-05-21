@@ -24,13 +24,13 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 import lucene.SimpleQuery;
 import lucene.SimpleSimilarity;
 
-public class ImageSearcher {
+public class THUSearcher {
 	private IndexReader reader;
 	private IndexSearcher searcher;
 	private Analyzer analyzer;
 	private float avgLength=1.0f;
 	
-	public ImageSearcher(String indexdir){
+	public THUSearcher(String indexdir){
 		analyzer = new IKAnalyzer();
 		try{
 			System.out.println(System.getProperty("user.dir"));
@@ -52,7 +52,7 @@ public class ImageSearcher {
 			//Weight w=searcher.createNormalizedWeight(query);
 			//System.out.println(w.getClass());
 			TopDocs results = searcher.search(query, maxnum);
-			System.out.println(results);
+			// System.out.println(results);
 			return results;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -85,7 +85,7 @@ public class ImageSearcher {
 	}
 	
 	public static void main(String[] args){
-		ImageSearcher search=new ImageSearcher("forIndex/index");
+		THUSearcher search=new THUSearcher("forIndex/index");
 		search.loadGlobals("forIndex/global.txt");
 		System.out.println("avg length = "+search.getAvg());
 		

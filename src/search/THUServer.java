@@ -31,14 +31,14 @@ import java.net.*;
 import java.io.*;
 
 
-public class ImageServer extends HttpServlet{
+public class THUServer extends HttpServlet{
 	public static final int PAGE_RESULT=10;
 	public static final String indexDir="forIndex";
-	public static final String picDir="";
-	private ImageSearcher search=null;
-	public ImageServer(){
+	public static final String htmlDir="/mirror/";
+	private THUSearcher search=null;
+	public THUServer(){
 		super();
-		search=new ImageSearcher(new String(indexDir+"/index"));
+		search=new THUSearcher(new String(indexDir+"/index"));
 		search.loadGlobals(new String(indexDir+"/global.txt"));
 	}
 	
@@ -102,18 +102,21 @@ public class ImageServer extends HttpServlet{
 					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));
 			}*/
 			
+			System.out.println("Here...");
 	        setRequestAttribute(request, response, hits, queryString, page);
 			
 		}
 	}
 	
 	private ScoreDoc[] getHits(String queryString, int page) {
-		TopDocs results=search.searchQuery(queryString, "abstract", 100);
+		TopDocs results=null;
 		ScoreDoc[] hits = null;
-		if (results != null) {
-			// hits = showList(results.scoreDocs, page);
-			hits = results.scoreDocs;
-		}
+		
+//		results=search.searchQuery(queryString, "abstract", 100);
+//		if (results != null) {
+//			// hits = showList(results.scoreDocs, page);
+//			hits = results.scoreDocs;
+//		}
 
 		ArrayList<ScoreDoc> moreHits = new ArrayList<ScoreDoc>();
 		/* Get the average score of images which matchs more than one query string,
@@ -140,15 +143,15 @@ public class ImageServer extends HttpServlet{
 			addHits(moreHits, titleRes.scoreDocs, statusCode);
 		}
 		
-		if (hits == null || hits.length == 0) {
-			System.out.println("abstract search null");
+//		if (hits == null || hits.length == 0) {
+//			System.out.println("abstract search null");
 			if (moreHits.size() != 0) {  
 				hits = moreHits.toArray(new ScoreDoc[moreHits.size()]);
 			}
 			else {
 				System.out.println("relative search null");
 			}
-		}
+//		}
 		
 		return hits;
 	}
@@ -157,16 +160,18 @@ public class ImageServer extends HttpServlet{
 					ArrayList<ScoreDoc> hits, String queryString, int page) {
 		String[] tags=null;
 		String[] paths=null;
+		String[] absContent=null;
 		
 		if (hits.size() != 0) {
 			Collections.sort(hits, new ScoreComparator());
-			ScoreDoc[] imgs = showList(hits.toArray(new ScoreDoc[hits.size()]), page);
-			if (imgs == null) {
-				imgs = new ScoreDoc[0];
+			ScoreDoc[] htmls = showList(hits.toArray(new ScoreDoc[hits.size()]), page);
+			if (htmls == null) {
+				htmls = new ScoreDoc[0];
 			}
-			tags = new String[imgs.length];
-			paths = new String[imgs.length];
-			getTagsAndPaths(tags, paths, imgs, search);
+			tags = new String[htmls.length];
+			paths = new String[htmls.length];
+			absContent = new String[htmls.length];
+			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}
 		else {
 			System.out.println("Result Null");
@@ -175,9 +180,10 @@ public class ImageServer extends HttpServlet{
 		try {
 			request.setAttribute("currentQuery",queryString);
 			request.setAttribute("currentPage", page);
-			request.setAttribute("imgTags", tags);
-			request.setAttribute("imgPaths", paths);
-			request.getRequestDispatcher("/imageshow.jsp").forward(request,
+			request.setAttribute("htmlTags", tags);
+			request.setAttribute("htmlPaths", paths);
+			request.setAttribute("absContent", absContent);
+			request.getRequestDispatcher("/thushow.jsp").forward(request,
 					response);
 		}
 		catch (Exception e) {
@@ -239,15 +245,19 @@ public class ImageServer extends HttpServlet{
 		return -1;
 	}
 	
-	private void getTagsAndPaths(String[] tags, String[] paths, ScoreDoc[] hits, ImageSearcher search) {
+	private void getTagsAndPaths(String[] tags, String[] paths, String[] absContent, ScoreDoc[] hits, THUSearcher search) {
 		for (int i = 0; i < hits.length && i < PAGE_RESULT; i++) {
 			Document doc = search.getDoc(hits[i].doc);
 			/*System.out.println("doc=" + hits[i].doc + " score="
 					+ hits[i].score + " picPath= "
 					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));*/
-			tags[i] = doc.get("abstract");
-			paths[i] = picDir + doc.get("picPath");
-
+			tags[i] = doc.get("title");
+			paths[i] = htmlDir + doc.get("urlPath");
+			String content = doc.get("content");
+			if (content.length() < 300)
+				absContent[i] = doc.get("content");
+			else
+				absContent[i] = doc.get("content").substring(0, 300) + "...";
 		}
 	}
 	

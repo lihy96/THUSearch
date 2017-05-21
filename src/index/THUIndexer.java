@@ -7,8 +7,13 @@ import java.util.*;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import lucene.SimpleSimilarity;
+import parser.CommonParser;
+import parser.HTMLParser;
 import util.ConfReader;
+import util.DocReader;
 import util.FileOperator;
+import util.PDFReader;
+import util.XMLReader;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -22,17 +27,22 @@ import org.jsoup.Jsoup;
 
 import javax.xml.parsers.*; 
 
-public class ImageIndexer {
+public class THUIndexer {
 	private Analyzer analyzer; 
     private IndexWriter indexWriter;
-    private float averageLength=1.0f;
     private static int cc = 0;
+	private static String indexDir, globalDir, srcDir;
+
+    public static float averageLength=1.0f;
+    public static float DIV_NUM = 10000.0f;
     
     @SuppressWarnings("deprecation")
-	public ImageIndexer(String indexDir){
+	public THUIndexer(String indexDir){
     	analyzer = new IKAnalyzer();
     	try{
     		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_35, analyzer);
+    		// 覆盖源文件，而不是追加模式
+    		iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
     		Directory dir = FSDirectory.open(new File(indexDir));
     		indexWriter = new IndexWriter(dir,iwc);
     		indexWriter.setSimilarity(new SimpleSimilarity());
@@ -56,34 +66,70 @@ public class ImageIndexer {
     	try {
 	    	File[] res = website.listFiles();
 	    	for (File file : res) {
-				
 	    		if (file.isDirectory()) {
 	    			indexSpecificWebsite(file);
 	    			continue;
 	    		}
+
+	    		// 文件太大, 大于100M, 删除, 减小存储压力
+	    		double mBytes = file.length() / (1024 * 1024);
+	    		if (mBytes > 100) {
+	    			file.delete();
+	    			continue;
+	    		}
 	    		
 	    		int idx = file.getName().lastIndexOf(".");
-	    		String dotFile = "";
-	    		if (idx != -1) {
-	    			dotFile = file.getName().substring(idx+1);
-	    		}
+	    		if (idx < 1) continue;
+	    		
+	    		String dotFile = file.getName().substring(idx+1);
+	    		String name = file.getName().substring(0, idx);
+	    		
+	    		// 下载错误的文件，直接删除
 	    		if (dotFile.equalsIgnoreCase("wmv")		||
 	    			dotFile.equalsIgnoreCase("flv")) {
+	    			System.out.println(file.getAbsolutePath());
 	    			file.delete();
+	    			continue;
 	    		}
 	    		
-	    		if (dotFile.equalsIgnoreCase("html")  	|| 
-	    			dotFile.equalsIgnoreCase("txt")  	|| 
-	    			dotFile.equalsIgnoreCase("xml")) {
-//					Document document  =   new  Document();
-//					String content = FileOperator.readFile(file.getAbsolutePath());
-//					parseText(content, document, false);
-//					indexWriter.addDocument(document);
+	    		String content = "";
+				Document document = new Document();
+	    		if (dotFile.equalsIgnoreCase("html")) {
+					content = FileOperator.readFile(file.getAbsolutePath());
+					HTMLParser.htmlParser(content, document, false);
+				}
+	    		else if (dotFile.equalsIgnoreCase("txt")) {
+					content = FileOperator.readFile(file.getAbsolutePath());
+	    			CommonParser.commParser(name, content, document);
+	    		}
+	    		else if (dotFile.equalsIgnoreCase("xml")) {
+	    			content = XMLReader.readXMLFile(file.getAbsolutePath());
+	    			CommonParser.commParser(name, content, document);
+	    		}
+	    		else if (dotFile.equalsIgnoreCase("doc")) {
+	    			content = DocReader.readDocFile(file.getAbsolutePath());
+	    			CommonParser.commParser(name, content, document);
+	    		}
+	    		else if (dotFile.equalsIgnoreCase("docx")) {
+	    			content = DocReader.readDocxFile(file.getAbsolutePath());
+	    			CommonParser.commParser(name, content, document);
+	    		}
+	    		else if (dotFile.equalsIgnoreCase("pdf")) {
+	    			content = PDFReader.readPDFFile(file.getAbsolutePath());
+	    			CommonParser.commParser(name, content, document);
+	    		}
+
+	    		if (!content.equals("")) {
 		    		cc ++;
 					if(cc % 100==0){
 						System.out.println("process "+cc);
 					}
-				}
+					String filePath = file.getPath().substring(srcDir.length());
+					Field UrlPath = new Field("urlPath", filePath, 
+													Field.Store.YES, Field.Index.NO);
+					document.add(UrlPath);
+					indexWriter.addDocument(document);
+	    		}
 	    	}
 		}catch(Exception e){
 			e.printStackTrace();
@@ -122,7 +168,6 @@ public class ImageIndexer {
 		
 		Map<String, String> confs = new HashMap<String, String>();
 		ConfReader.confRead("conf/indexer.conf", confs);
-		String indexDir, globalDir, srcDir;
 		
 		if ((indexDir = confs.get("IndexDir")) == null)
 			indexDir = "forIndex/index";
@@ -131,86 +176,10 @@ public class ImageIndexer {
 		if ((srcDir = confs.get("SrcDir")) == null)
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
-		ImageIndexer indexer=new ImageIndexer(indexDir);
+		THUIndexer indexer=new THUIndexer(indexDir);
 		indexer.indexMirrorWebSites(srcDir);
 		indexer.saveGlobals(globalDir);
 		
 	}
 	
-	public void parseText(String content, Document document, boolean debug) {
-		try {
-			org.jsoup.nodes.Document doc = Jsoup.parse(content);
-			org.jsoup.nodes.Element titleE = doc.select("title").first();
-			org.jsoup.nodes.Element keywordsE = doc.select("meta[name=\"keywords\"]").first();
-			org.jsoup.nodes.Element descriptionE = doc.select("meta[name=\"description\"]").first();
-			org.jsoup.nodes.Element bodyE = doc.select("body").first();
-			
-			String title = "";
-			if (titleE!=null && titleE.hasText()) {
-				title = titleE.text();
-				averageLength += title.length();
-			}
-			String keywords = "";
-			if (keywordsE!=null && keywordsE.hasAttr("content")) {
-				keywords = keywordsE.attr("content");
-				averageLength += keywords.length();
-			}
-			String description = "";
-			if (descriptionE!=null && descriptionE.hasAttr("content")) {
-				description = descriptionE.attr("content");
-				averageLength += description.length();
-			}
-			
-			String relativeContent = "";
-			if (bodyE!=null) {
-				for (org.jsoup.nodes.Element ele : bodyE.children()) {
-					String text = ele.text();
-					relativeContent += text;
-				}
-				averageLength += relativeContent.length();
-			}
-			
-			if (debug) {
-				System.out.println("***********DEBUG INFO***********");
-				System.out.println("title : " + title + "\n" + 
-								"keywords : " + keywords + "\n" + 
-								"description : " + description + "\n" + 
-								"relativeContent : " + relativeContent);
-			}
-			
-			Field titleField = new Field("title", title, Field.Store.YES, Field.Index.ANALYZED);
-			Field keywordsField = new Field("keywords", keywords, Field.Store.YES, Field.Index.ANALYZED);
-			Field descriptionField = new Field("description", description, Field.Store.YES, Field.Index.ANALYZED);
-			Field contentField = new Field("content", relativeContent, Field.Store.YES, Field.Index.ANALYZED);
-			document.add(titleField);
-			document.add(keywordsField);
-			document.add(descriptionField);
-			document.add(contentField);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
