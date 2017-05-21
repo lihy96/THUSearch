@@ -1,5 +1,7 @@
 build/
 forIndex/
+test/
+reference.txt
 lib/heritrix*
 .settings/
 .classpath

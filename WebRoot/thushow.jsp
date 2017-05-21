@@ -71,7 +71,13 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
   	if(htmlTags!=null && htmlTags.length>0){
   		for(int i=0;i<htmlTags.length;i++){%>
   		<p>
-  		<tr><h3><a href="<%=htmlPath+htmlPaths[i]%>"><%=(currentPage-1)*10+i+1%>. <%=htmlTags[i] %></a></h3></tr>
+  		<tr><h3><a href="<%=htmlPath+htmlPaths[i]%>"><%=(currentPage-1)*10+i+1%>. 
+  			<%
+  				String title = htmlTags[i];
+  				int ii = title.indexOf(currentQuery);
+  			%>
+  			<%=htmlTags[i] %>
+  		</a></h3></tr>
   		<tr class="text">
   			<%
   				String content = absContent[i];
