@@ -74,9 +74,15 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
   		<tr><h3><a href="<%=htmlPath+htmlPaths[i]%>"><%=(currentPage-1)*10+i+1%>. 
   			<%
   				String title = htmlTags[i];
-  				int ii = title.indexOf(currentQuery);
-  			%>
-  			<%=htmlTags[i] %>
+  				int tix = title.indexOf(currentQuery);
+  				if (tix != -1) {
+  					String first = title.substring(0, tix);
+  					String last = title.substring(tix+currentQuery.length());%>
+		  			<%=first %><mark><%=currentQuery %></mark><%=last %>
+  				<%} 
+  				else {%>
+  					<%=htmlTags[i] %>
+  				<%} %>
   		</a></h3></tr>
   		<tr class="text">
   			<%
