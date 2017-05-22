@@ -107,16 +107,16 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <div>
   	<p>
 		<%if(currentPage>1){ %>
-			<a href="ImageServer?query=<%=currentQuery%>&page=<%=currentPage-1%>">上一页</a>
+			<a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage-1%>">上一页</a>
 		<%}; %>
 		<%for (int i=Math.max(1,currentPage-5);i<currentPage;i++){%>
-			<a href="ImageServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a>
+			<a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a>
 		<%}; %>
 		<strong><%=currentPage%></strong>
 		<%for (int i=currentPage+1;i<=currentPage+5;i++){ %>
-			<a href="ImageServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a>
+			<a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a>
 		<%}; %>
-		<a href="ImageServer?query=<%=currentQuery%>&page=<%=currentPage+1%>">下一页</a>
+		<a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage+1%>">下一页</a>
 	</p>
   </div>
 </div>
