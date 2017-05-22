@@ -14,7 +14,7 @@ System.out.println(basePath);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>THU Search</title>
+<title>搜乎，搜你所想</title>
 	<!-- bootstrap -->
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
@@ -23,22 +23,26 @@ System.out.println(basePath);
     <style type="text/css">
         body,a,p,input,button{font-family:Arial,Verdana,"Microsoft YaHei",Georgia,Sans-serif}
         body{
-      background-size: cover;
-     }
+      		background-size: cover;
+     	}
     </style>
 </head>
-<body background="bj.jpg">
+<body background="bj2.jpeg">
 	<center>
-	<div style="height:70px;margin-top:110px" >
-  	</div>
+	<!-- position of title -->
+	<div style="height:70px;margin-top:170px" > </div>
   	<div style="height:102px">
-  	<h1 class="text-warning"><img src="main.png" class="img-rounded" style="height:55px; width:55px; ">THU Search</h1>
-  	<form id="form1" name="form1" method="get" action="servlet/ImageServer" class="form-search" style="margin-top:20px">
+  	<!-- icon and title -->
+  	<h1 class="text-warning"><img src="main2.png" class="img-rounded" style="height:55px; width:55px; ">
+  	<font size="6" color="#CD8500">Tsinghua</font>
+  	<font size="6" color="#CD6839">Search</font>
+  	</h1>
+  	<form id="form1" name="form1" method="get" action="servlet/THUServer" class="form-search" style="margin-top:20px">
     	<label>
-      		<input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:33px"/>
+      		<input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/>
     	</label>
     	<label>
-    		<input class = "btn btn-success" type="submit" name="Submit" value="Search" style = "width:100px;"/>
+    		<input class = "btn btn-primary" type="submit" name="Submit" value="Search" style = "width:110px; height:40px; "/>
     	</label>
    	</form>
    	</div>
