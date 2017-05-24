@@ -19,6 +19,6 @@
 		<javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="classpath"/>
 	</target>
 	
-	<target name="rebuild" depends="clean,jar"/>
+	<target name="rebuild" depends="clean,compile"/>
 	
 </project>
