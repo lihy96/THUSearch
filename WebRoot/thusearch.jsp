@@ -1,13 +1,9 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%
 request.setCharacterEncoding("utf-8");
-System.out.println(request.getCharacterEncoding());
 response.setCharacterEncoding("utf-8");
-System.out.println(response.getCharacterEncoding());
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
-System.out.println(path);
-System.out.println(basePath);
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
