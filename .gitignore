@@ -6,7 +6,7 @@ build/
 out/
 input/
 build/
-forIndex/
+*forIndex/
 WebRoot/WEB-INF/classes/*
 WebRoot/WEB-INF/lib/*
 test/

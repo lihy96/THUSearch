@@ -150,10 +150,10 @@ final class SimpleScorer extends Scorer {
 			float numTerms = Similarity.decodeNorm(norms[doc]);
 			numTerms = 1 / (numTerms * numTerms);
 			float K2 = numTerms / avgLength;
-			/*System.out.println("idf : " + idf + ", freq : " + this.termDocs.freq() + 
-					", doc : " + doc + ", K1 : " + K1 + ", K2 : " + K2 +
-					", numTerms : " + numTerms + ", avgLength : " + avgLength);*/
-			return (idf * this.termDocs.freq() * (K1 + 1)) / (this.termDocs.freq() + K1 * (1 - b + b * K2));
+//			return (idf * 1000 * (K1 + 1)) / 
+//					(1000 + K1 * (1 - b + b * K2));
+			return (idf * this.termDocs.freq() * (K1 + 1)) / 
+					(this.termDocs.freq() + K1 * (1 - b + b * K2));
 		}
 
 		/* For VSM model, comparing with BM25 above.

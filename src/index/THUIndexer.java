@@ -36,7 +36,7 @@ public class THUIndexer {
 	private static String indexDir, globalDir, srcDir;
 
     public static float averageLength=1.0f;
-    public static float DIV_NUM = 10000.0f;
+    public static float DIV_NUM = 1000.0f;
     
     @SuppressWarnings("deprecation")
 	public THUIndexer(String indexDir){
@@ -206,7 +206,8 @@ public class THUIndexer {
 		
 //		pr.saveInfo();
 //		indexer.indexMirrorWebSites(srcDir);
-//		indexer.saveGlobals(globalDir);
+		
+		indexer.saveGlobals(globalDir);
 	}
 	
 	/**
@@ -276,5 +277,10 @@ public class THUIndexer {
     		}
 		}
 		
+		averageLength /= indexWriter.numDocs();
+		averageLength *= DIV_NUM;
+		System.out.println("average length = "+averageLength);
+		System.out.println("total "+indexWriter.numDocs()+" documents");
+		indexWriter.close();
     }
 }

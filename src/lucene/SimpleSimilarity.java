@@ -23,7 +23,8 @@ public class SimpleSimilarity extends Similarity {
 
 	@Override
 	public float tf(float freq) {
-		return freq;
+		return (float) Math.sqrt(freq);
+//		return freq;
 	}
 
 	@Override

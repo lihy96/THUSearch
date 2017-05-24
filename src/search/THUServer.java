@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ansj.splitWord.analysis.ToAnalysis;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -22,6 +23,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.Version;
+import org.apache.xmlbeans.impl.xb.xsdschema.Element;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.util.*;
@@ -73,26 +75,43 @@ public class THUServer extends HttpServlet{
 			//分词
 			// IKAnalyzer ika = new IKAnalyzer(false);
 			ArrayList<ScoreDoc> hits = new ArrayList<ScoreDoc>();
-			QueryParser queryParser = new QueryParser(Version.LUCENE_35, "content", new IKAnalyzer(false));
-			Query queryClass;
-			try {
-				queryClass = queryParser.parse(queryString);
-				// System.out.println(queryClass);
-				Set<Term> terms = new HashSet<Term>();
-				queryClass.extractTerms(terms);
-				System.out.print("IKAnalyzer result : ");
-				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
-					Term term = iter.next();
-					String query = term.text().trim();
-					System.out.print("<" + query + ">");
-					ScoreDoc[] tmpHits = getHits(query, page);
-		            addHits(hits, tmpHits, 1);
-				}
-				System.out.println("");
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			/**
+			 * ansj_seg word-spliter package
+			 */
+			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
+			System.out.print("ansj result : ");
+			for (org.ansj.domain.Term word : queryWords) {
+				if (word.getName().matches(" *")) continue;
+				System.out.print("<" + word.getName() + ">");
+				ScoreDoc[] tmpHits = getHits(word.getName(), page);
+	            addHits(hits, tmpHits, 1);
 			}
+			System.out.println("");
+			
+			/**
+			 * IKAnalyzer split word package
+			 */
+//			QueryParser queryParser = new QueryParser(Version.LUCENE_35, "content", new IKAnalyzer(false));
+//			Query queryClass;
+//			try {
+//				queryClass = queryParser.parse(queryString);
+//				// System.out.println(queryClass);
+//				Set<Term> terms = new HashSet<Term>();
+//				queryClass.extractTerms(terms);
+//				System.out.print("IKAnalyzer result : ");
+//				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
+//					Term term = iter.next();
+//					String query = term.text().trim();
+//					System.out.print("<" + query + ">");
+//					ScoreDoc[] tmpHits = getHits(query, page);
+//		            addHits(hits, tmpHits, 1);
+//				}
+//				System.out.println("");
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	        
 			/*for (int i = 0; i < hits.size(); ++i) {
 				Document doc = search.getDoc(hits.get(i).doc);

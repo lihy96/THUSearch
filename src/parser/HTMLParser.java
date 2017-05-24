@@ -4,6 +4,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.jsoup.Jsoup;
 
+import cn.edu.hfut.dmic.contentextractor.ContentExtractor;
 import index.THUIndexer;
 
 public class HTMLParser {
@@ -14,7 +15,7 @@ public class HTMLParser {
 			org.jsoup.nodes.Element titleE = doc.select("title").first();
 			org.jsoup.nodes.Element keywordsE = doc.select("meta[name=\"keywords\"]").first();
 			org.jsoup.nodes.Element descriptionE = doc.select("meta[name=\"description\"]").first();
-			org.jsoup.nodes.Element bodyE = doc.select("body").first();
+			org.jsoup.nodes.Element body = ContentExtractor.getContentElementByDoc(doc);
 			
 			String title = "";
 			if (titleE!=null && titleE.hasText()) {
@@ -33,8 +34,8 @@ public class HTMLParser {
 			}
 			
 			String relativeContent = "";
-			if (bodyE!=null) {
-				for (org.jsoup.nodes.Element ele : bodyE.children()) {
+			if (body!=null) {
+				for (org.jsoup.nodes.Element ele : body.children()) {
 					String text = ele.text();
 					relativeContent += text;
 				}
