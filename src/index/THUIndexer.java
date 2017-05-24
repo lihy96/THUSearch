@@ -99,6 +99,7 @@ public class THUIndexer {
 		 * index websites for later search
 		 */
 		Map<String, Integer> fileList = si.getFileList();
+		System.out.println("Index Document : " + fileList.size());
 		try {
 			indexer.indexDocuments(fileList, si.webs);
 		}
@@ -143,6 +144,7 @@ public class THUIndexer {
 			 *  	html, txt, xml,
 			 *  	doc, docx, pdf
 			 */
+			System.setOut(dump);
 			System.setErr(dump);
     		if (dotFile.equalsIgnoreCase("html")) {
 				content = FileOperator.readFile(file.getPath());
@@ -169,6 +171,7 @@ public class THUIndexer {
     			CommonParser.commParser(name, content, document);
     		}
     		System.setErr(err);
+    		System.setOut(out);
 
     		if (!content.equals("")) {				
 				String filePath = file.getPath().substring(srcDir.length());

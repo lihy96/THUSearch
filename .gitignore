@@ -4,6 +4,7 @@
 *.png
 build/
 out/
+target/
 input/
 build/
 *forIndex/
