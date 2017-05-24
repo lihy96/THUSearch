@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<project name="thusearch" basedir="." default="compile">
+	
+	<property name="src.dir" value="src"/>
+	<property name="bin.dir" value="build/classes"/>
+	<property name="jar.dir" value="build/jar"/>
+	<property name="mvn.dir" value="target/dependency/"/>
+	
+	<path id="classpath">
+		<fileset dir="${mvn.dir}" includes="**/*.jar"/>
+	</path>
+	
+	<target name="clean">
+		<delete dir="build"/>
+	</target>
+	
+	<target name="compile">
+		<mkdir dir="${bin.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="classpath"/>
+	</target>
+	
+	<target name="rebuild" depends="clean,jar"/>
+	
+</project>
