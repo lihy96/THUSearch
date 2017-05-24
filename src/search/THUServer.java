@@ -69,11 +69,7 @@ public class THUServer extends HttpServlet{
 		if(queryString==null){
 			System.out.println("null query");
 			//request.getRequestDispatcher("/Image.jsp").forward(request, response);
-		}else{
-			/*System.out.println(queryString);
-			System.out.println(URLDecoder.decode(queryString,"utf-8"));
-			System.out.println(URLDecoder.decode(queryString,"gb2312"));*/
-			
+		}else{			
 			//分词
 			// IKAnalyzer ika = new IKAnalyzer(false);
 			ArrayList<ScoreDoc> hits = new ArrayList<ScoreDoc>();
@@ -84,12 +80,15 @@ public class THUServer extends HttpServlet{
 				// System.out.println(queryClass);
 				Set<Term> terms = new HashSet<Term>();
 				queryClass.extractTerms(terms);
+				System.out.print("IKAnalyzer result : ");
 				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
 					Term term = iter.next();
-					// System.out.println(term.field() + " : " + term.text());
-					ScoreDoc[] tmpHits = getHits(term.text().trim(), page);
+					String query = term.text().trim();
+					System.out.print("<" + query + ">");
+					ScoreDoc[] tmpHits = getHits(query, page);
 		            addHits(hits, tmpHits, 1);
 				}
+				System.out.println("");
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -102,7 +101,6 @@ public class THUServer extends HttpServlet{
 					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));
 			}*/
 			
-			System.out.println("Here...");
 	        setRequestAttribute(request, response, hits, queryString, page);
 			
 		}
@@ -111,12 +109,6 @@ public class THUServer extends HttpServlet{
 	private ScoreDoc[] getHits(String queryString, int page) {
 		TopDocs results=null;
 		ScoreDoc[] hits = null;
-		
-//		results=search.searchQuery(queryString, "abstract", 100);
-//		if (results != null) {
-//			// hits = showList(results.scoreDocs, page);
-//			hits = results.scoreDocs;
-//		}
 
 		ArrayList<ScoreDoc> moreHits = new ArrayList<ScoreDoc>();
 		/* Get the average score of images which matchs more than one query string,
@@ -248,9 +240,8 @@ public class THUServer extends HttpServlet{
 	private void getTagsAndPaths(String[] tags, String[] paths, String[] absContent, ScoreDoc[] hits, THUSearcher search) {
 		for (int i = 0; i < hits.length && i < PAGE_RESULT; i++) {
 			Document doc = search.getDoc(hits[i].doc);
-			/*System.out.println("doc=" + hits[i].doc + " score="
-					+ hits[i].score + " picPath= "
-					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));*/
+			System.out.println("doc=" + hits[i].doc + " score="
+					+ hits[i].score + " title= "+doc.get("title"));
 			tags[i] = doc.get("title");
 			paths[i] = htmlDir + doc.get("urlPath");
 			String content = doc.get("content");

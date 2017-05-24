@@ -47,7 +47,7 @@ public class THUSearcher {
 		try {
 			Term term=new Term(field,queryString);
 			Query query=new SimpleQuery(term,avgLength);
-			System.out.println(query);
+			// System.out.println(query);
 			query.setBoost(1.0f);
 			//Weight w=searcher.createNormalizedWeight(query);
 			//System.out.println(w.getClass());

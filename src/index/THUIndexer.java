@@ -2,11 +2,13 @@ package index;
 
 import java.io.*;
 import java.util.*;
-
+import java.util.Map.Entry;
 
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import lucene.SimpleSimilarity;
+import pagerank.PageRank;
+import pagerank.WebSite;
 import parser.CommonParser;
 import parser.HTMLParser;
 import util.ConfReader;
@@ -30,7 +32,7 @@ import javax.xml.parsers.*;
 public class THUIndexer {
 	private Analyzer analyzer; 
     private IndexWriter indexWriter;
-    private static int cc = 0;
+//    private static int cc = 0;
 	private static String indexDir, globalDir, srcDir;
 
     public static float averageLength=1.0f;
@@ -94,6 +96,12 @@ public class THUIndexer {
 	    		
 	    		String content = "";
 				Document document = new Document();
+				
+				/**
+				 *  对不用格式文档进行解析，目前支持如下格式：
+				 *  	html, txt, xml,
+				 *  	doc, docx, pdf
+				 */
 	    		if (dotFile.equalsIgnoreCase("html")) {
 					content = FileOperator.readFile(file.getAbsolutePath());
 					HTMLParser.htmlParser(content, document, false);
@@ -120,10 +128,11 @@ public class THUIndexer {
 	    		}
 
 	    		if (!content.equals("")) {
-		    		cc ++;
-					if(cc % 100==0){
-						System.out.println("process "+cc);
-					}
+//		    		cc ++;
+//					if(cc % 100==0){
+//						System.out.println("process "+cc);
+//					}
+					
 					String filePath = file.getPath().substring(srcDir.length());
 					Field UrlPath = new Field("urlPath", filePath, 
 													Field.Store.YES, Field.Index.NO);
@@ -153,19 +162,7 @@ public class THUIndexer {
 		}
 	}
 	
-	public static void main(String[] args) {
-//		try {
-//			String url, fileType;
-//			File file;
-//			url = "/home/cunxinshuihua/Desktop/homework/searchEngine/hw2/ImageSearch/1.test";
-//			file = new File(url);
-//			fileType = Files.probeContentType(file.toPath());
-//			System.out.println(fileType);
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
+	public static void main(String[] args) {		
 		Map<String, String> confs = new HashMap<String, String>();
 		ConfReader.confRead("conf/indexer.conf", confs);
 		
@@ -177,9 +174,107 @@ public class THUIndexer {
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
 		THUIndexer indexer=new THUIndexer(indexDir);
-		indexer.indexMirrorWebSites(srcDir);
-		indexer.saveGlobals(globalDir);
 		
+		/**
+		 * page rank preparation
+		 */
+		SimpleIndex si = new SimpleIndex();
+		ArrayList<String> fs = new ArrayList<String>();
+		fs.add("html"); fs.add("txt"); fs.add("xml");
+		fs.add("doc"); fs.add("docx"); fs.add("pdf");
+		si.setParam(srcDir, fs);
+		si.simpleIndex();
+
+		/**
+		 * calculate page rank for each html file
+		 */
+		PageRank pr = new PageRank(0.15, 20, si.map, si.webs);
+		pr.calPageRank();
+		pr.sort(); 
+		pr.saveInfo();
+		
+		/**
+		 * index websites for later search
+		 */
+		Map<String, Integer> fileList = si.getFileList();
+		try {
+			indexer.indexDocuments(fileList, si.webs);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		pr.saveInfo();
+//		indexer.indexMirrorWebSites(srcDir);
+//		indexer.saveGlobals(globalDir);
 	}
 	
+	/**
+	 * Set page rank as boost in lucene
+	 * @param fileList
+	 */
+	public void indexDocuments(Map<String, Integer> fileList, Map<Integer, WebSite> webs) 
+				throws Exception {
+		PrintStream out = System.out;
+		PrintStream err = System.err;
+		PrintStream dump = new PrintStream(new FileOutputStream("/dev/null"));
+		int count = 0;
+		for (Entry<String, Integer> entry : fileList.entrySet()) {
+			count ++;
+			if (count % 100 == 0) {
+				System.out.println("Index document : " + count);
+			}
+			
+			File file = new File(entry.getKey());
+			int idx = file.getName().lastIndexOf(".");
+    		String dotFile = file.getName().substring(idx+1);
+    		String name = file.getName().substring(0, idx);
+    		
+    		String content = "";
+			Document document = new Document();
+			double pagerank = webs.get(entry.getValue()).pagerank * 10;
+			document.setBoost((float)pagerank);
+
+			/**
+			 *  对不用格式文档进行解析，目前支持如下格式：
+			 *  	html, txt, xml,
+			 *  	doc, docx, pdf
+			 */
+			System.setErr(dump);
+    		if (dotFile.equalsIgnoreCase("html")) {
+				content = FileOperator.readFile(file.getPath());
+				HTMLParser.htmlParser(content, document, false);
+			}
+    		else if (dotFile.equalsIgnoreCase("txt")) {
+				content = FileOperator.readFile(file.getPath());
+    			CommonParser.commParser(name, content, document);
+    		}
+    		else if (dotFile.equalsIgnoreCase("xml")) {
+    			content = XMLReader.readXMLFile(file.getPath());
+    			CommonParser.commParser(name, content, document);
+    		}
+    		else if (dotFile.equalsIgnoreCase("doc")) {
+    			content = DocReader.readDocFile(file.getPath());
+    			CommonParser.commParser(name, content, document);
+    		}
+    		else if (dotFile.equalsIgnoreCase("docx")) {
+    			content = DocReader.readDocxFile(file.getPath());
+    			CommonParser.commParser(name, content, document);
+    		}
+    		else if (dotFile.equalsIgnoreCase("pdf")) {
+    			content = PDFReader.readPDFFile(file.getPath());
+    			CommonParser.commParser(name, content, document);
+    		}
+    		System.setErr(err);
+
+    		if (!content.equals("")) {				
+				String filePath = file.getPath().substring(srcDir.length());
+				Field UrlPath = new Field("urlPath", filePath, 
+												Field.Store.YES, Field.Index.NO);
+				document.add(UrlPath);
+				indexWriter.addDocument(document);
+    		}
+		}
+		
+    }
 }
