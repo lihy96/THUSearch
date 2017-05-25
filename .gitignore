@@ -1,13 +1,10 @@
-*.jpg
-*.jpeg
-*.svg
-*.png
 build/
 out/
 target/
 input/
 build/
 *forIndex/
+forIndex
 WebRoot/WEB-INF/classes/*
 WebRoot/WEB-INF/lib/*
 test/
