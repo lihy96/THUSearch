@@ -1,0 +1,17 @@
+.floating-scroll-sticky {
+    z-index: 999;
+}
+.floating-scroll-sticky.floating-scroll-stick {
+    position: fixed !important;
+    top: 0;
+    z-index: 999;
+}
+.floating-scroll-sticky.floating-scroll-stick.floating-scroll-stuck {
+    position: absolute !important;
+    top: auto;
+    bottom: 0;
+    z-index: 999;
+}
+.floating-scroll-bounding-box{
+	position:relative !important;
+}
