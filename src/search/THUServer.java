@@ -172,6 +172,7 @@ public class THUServer extends HttpServlet{
 		String[] tags=null;
 		String[] paths=null;
 		String[] absContent=null;
+		String[] imgPaths = null;
 		
 		if (hits.size() != 0) {
 			Collections.sort(hits, new ScoreComparator());
@@ -182,6 +183,7 @@ public class THUServer extends HttpServlet{
 			tags = new String[htmls.length];
 			paths = new String[htmls.length];
 			absContent = new String[htmls.length];
+			imgPaths = new String[htmls.length];
 			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}
 		else {
@@ -193,6 +195,7 @@ public class THUServer extends HttpServlet{
 			request.setAttribute("currentPage", page);
 			request.setAttribute("htmlTags", tags);
 			request.setAttribute("htmlPaths", paths);
+			request.setAttribute("imgPaths", imgPaths);
 			request.setAttribute("absContent", absContent);
 			request.getRequestDispatcher("/thushow.jsp").forward(request,
 					response);
