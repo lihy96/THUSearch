@@ -22,6 +22,19 @@
 	2. 将打包好的thusearch.war文件放置在tomcat根目录下
 		TODO : 尚未测试
 
+** feature **
+	网页正文抽取，
+	pagerank分析
+	pdf,doc,docx,xml内容解析
+	前端关键词高亮
+	maven动态下载依赖包，ant编译
+	ansj分词（人名识别），IKAnalyzer不能识别
+	jsoup解析html
+	
+** Good case **
+	经管
+	
+
 ** 开发人员 **
 > 李昊阳
 > 王龙涛
