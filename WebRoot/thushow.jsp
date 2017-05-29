@@ -18,6 +18,8 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
     <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
     <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
+	    			  	<link rel="stylesheet" href="css/speech-input.css">
+						<link rel="stylesheet" href="css/demo.css">	
     <script src="jquery-1.11.3.min.js"></script>
     <script src="bootstrap/js/bootstrap-typeahead.js"/>
     
@@ -31,8 +33,15 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <style type="text/css">
         body,a,p,input,button{font-family:Arial,Verdana,"Microsoft YaHei",Georgia,Sans-serif}
         body{
+        	margin-left: 0;
       		background-size: cover;
       		padding-top:70px;
+     	}
+     	h3{
+     		font-size: 1.5em;
+		    margin: 0.5em 0 0.4em;
+		    font-family: sans-serif;
+		    font-weight: normal;
      	}
 
     </style>
@@ -51,40 +60,31 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	   	<div class="row" -->
 	  		<div style="text-align:left;">
 	  		  <div style="display:inline-block">
-		  		<h3 class="text-warning" style="height:50%;">
+		  		<h3 class="text-warning">
 					<img src="main2.png" class="img-rounded" style="height:40px; width:40px; ">  	
 					<font size="6" color="#CD8500">iSearch</font>
 				  	<!-- font size="6" color="#CD6839">Search</font -->
 				</h3>
 			  </div>
 
-			  <div style="display:inline-block">				
+			  <div style="display:inline-block">
+				
 				<form id="form1" name="form1" method="get" action="THUServer" 
 			  		class="form-search">	    
 				    <label>
 				      <input autocomplete="off" data-provide="typeahead" 
 				      		data-items="4" name="query" value="<%=currentQuery%>" 
 				      		id="appendedInputButton" type="text" size="70" 
-				      		style = "width:400px;" data-items="4" />
+				      		style = "width:410px;height:30px" data-items="4"
+				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3"/>
 				      <input type="submit" name="Submit" value="Submit" style="margin-top:0px"
 				      		class = "btn btn-primary" />
 			   		</label>
 			  	</form>
 			  </div>
 			</div>
-			<!-- div class="span4" style="margin-top: 20px;">
-			  	<form id="form2" name="form2" method="get" action="THUServer" class="form-search">   		   
-				    <label>
-				    	<input type="submit" name="Submit" value="  搜索   "  class = "btn btn-primary" />
-				    </label>
-			  	</form>
-			</div-->
-
-		<!-- /div -->
 		</div>
 	</div>
-	
-	
 </div>
 
 <div class = "row-fluid" style="text-align:left">
@@ -181,5 +181,5 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	</div> 
 </div>
 
-
+<script src="js/speech-input.js"></script>
 </body>
