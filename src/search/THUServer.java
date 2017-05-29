@@ -184,6 +184,10 @@ public class THUServer extends HttpServlet{
 			paths = new String[htmls.length];
 			absContent = new String[htmls.length];
 			imgPaths = new String[htmls.length];
+			
+			imgPaths[0] = "main2.png";
+			imgPaths[1] = "bj2.jpeg";
+			
 			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}
 		else {

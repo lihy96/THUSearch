@@ -34,8 +34,8 @@ System.out.println(basePath);
   	<div style="height:102px">
   	<!-- icon and title -->
   	<h1 class="text-warning"><img src="servlet/main2.png" class="img-rounded" style="height:55px; width:55px; ">
-  	<font size="6" color="#CD8500"> Tsinghua</font>
-  	<font size="6" color="#CD6839">Search</font>
+  	<font size="6" color="#CD8500">iSearch</font>
+  	<font size="6" color="#CD6839">爱上搜索</font>
   	</h1>
   	<form id="form1" name="form1" method="get" action="servlet/THUServer" class="form-search" style="margin-top:20px">
     	<label>
