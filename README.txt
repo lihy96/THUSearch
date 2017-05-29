@@ -11,6 +11,10 @@
 	$ mvn dependency:copy-dependencies
 	会在项目目录下创建一个target/文件夹，依赖包存储在target/dependency中
 
+**科大讯飞的依赖文件**
+	1. 将lib/xunfei/下的jar文件放入target/dependency并导入项目。
+	2. 将lib/xunfei/下的.so .dll文件放入项目根目录。
+	
 ** 项目运行 **
 	1. 使用Eclipse运行
 		Eclipse内置Tomcat运行，将target/dependency/目录下的所有jar包导入工程
