@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ansj.splitWord.analysis.ToAnalysis;
+import org.ansj.util.MyStaticValue;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -79,7 +80,16 @@ public class THUServer extends HttpServlet{
 			/**
 			 * ansj_seg word-spliter package
 			 */
+			PrintStream out = System.out;
+			System.setOut(new PrintStream("/dev/null"));
+			MyStaticValue.isRealName = true;
+			MyStaticValue.isNameRecognition = true;
+			MyStaticValue.isNumRecognition = true;
+			MyStaticValue.isQuantifierRecognition = true;
+//			MyStaticValue.ENV.put("dic", "http://maven.nlpcn.org/down/library/default.dic");
+//			MyStaticValue.ENV.put("ambiguity", "http://maven.nlpcn.org/down/library/ambiguity.dic");
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
+			System.setOut(out);
 			System.out.print("ansj result : ");
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
