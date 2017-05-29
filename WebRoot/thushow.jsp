@@ -66,7 +66,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				      		data-items="4" name="query" value="<%=currentQuery%>" 
 				      		id="appendedInputButton" type="text" size="70" 
 				      		style = "width:400px;" data-items="4" />
-				      <input type="submit" name="Submit" value="  搜索   " style="margin-top:0px"
+				      <input type="submit" name="Submit" value="Submit" style="margin-top:0px"
 				      		class = "btn btn-primary" />
 			   		</label>
 			  	</form>
@@ -95,7 +95,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  	String[] htmlTags=(String[]) request.getAttribute("htmlTags");
 		  	String[] htmlPaths=(String[]) request.getAttribute("htmlPaths");
 		  	String[] absContent=(String[]) request.getAttribute("absContent");
-		
+
 		  	String[] imgPaths=(String[]) request.getAttribute("imgPaths");
 		  	if(htmlTags!=null && htmlTags.length>0){
 		  		for(int i=0;i<htmlTags.length;i++){%>
@@ -103,7 +103,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	  			<tr>
 	  				<td>
 		  			<!-- title -->
-		  			<a href="<%=htmlPath+htmlPaths[i]%>"><font size="4"><u><%=(currentPage-1)*10+i+1%>. 
+		  			<a href="<%=htmlPaths[i]%>"><font size="4"><%=(currentPage-1)*10+i+1%>. 
 		  			<%
 		  				String title = htmlTags[i];
 		  				int tix = title.indexOf(currentQuery);
@@ -115,12 +115,12 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  				else {%>
 		  					<%=htmlTags[i] %>
 		  				<%} %>
-		  			</u></font></a>
+		  			</font></a>
 		  			
 		  			</br>
 					
 					<!-- 8 is the length of /mirror/ -->
-					<font size="3" color="#80CF80"><%=htmlPaths[i].substring(8, htmlPaths[i].length())%></font>
+					<font size="3" color="#80CF80"><%=htmlPaths[i]%></font>
 		  			
 		  			<!-- /td -->
 		 		<!-- /tr -->

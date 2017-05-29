@@ -42,7 +42,7 @@ System.out.println(basePath);
       		<input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/>
     	</label>
     	<label>
-    		<input class = "btn btn-primary" type="submit" name="Submit" value="搜索" style = "width:110px; height:40px; "/>
+    		<input class = "btn btn-primary" type="submit" name="Submit" value="Submit" style = "width:110px; height:40px; "/>
     	</label>
    	</form>
    	</div>
