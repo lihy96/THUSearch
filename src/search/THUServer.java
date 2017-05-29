@@ -37,7 +37,7 @@ import java.io.*;
 public class THUServer extends HttpServlet{
 	public static final int PAGE_RESULT=10;
 	public static final String indexDir="forIndex";
-	public static final String htmlDir="/mirror/";
+	public static final String htmlDir="http://";
 	private THUSearcher search=null;
 	public THUServer(){
 		super();
@@ -275,7 +275,11 @@ public class THUServer extends HttpServlet{
 			System.out.println("doc=" + hits[i].doc + " score="
 					+ hits[i].score + " title= "+doc.get("title"));
 			tags[i] = doc.get("title");
-			paths[i] = htmlDir + doc.get("urlPath");
+			String absHtmlPath = htmlDir + doc.get("urlPath");
+			if (absHtmlPath.endsWith("index.html")) {
+				absHtmlPath = absHtmlPath.substring(0, absHtmlPath.length() - 10);
+			}
+			paths[i] = absHtmlPath;
 			String content = doc.get("content");
 			if (content.length() < 300)
 				absContent[i] = doc.get("content");
