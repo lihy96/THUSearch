@@ -2,6 +2,8 @@ package parser;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
 import org.jsoup.Jsoup;
 
 import cn.edu.hfut.dmic.contentextractor.ContentExtractor;
@@ -9,7 +11,7 @@ import index.THUIndexer;
 
 public class HTMLParser {
 
-	public static void htmlParser(String content, Document document, boolean debug) {
+	public static void htmlParser(String content, Document document, float pagerank) {
 		try {
 			org.jsoup.nodes.Document doc = Jsoup.parse(content);
 			org.jsoup.nodes.Element titleE = doc.select("title").first();
@@ -42,18 +44,14 @@ public class HTMLParser {
 				THUIndexer.averageLength += relativeContent.length() / THUIndexer.DIV_NUM;
 			}
 			
-			if (debug) {
-				System.out.println("***********DEBUG INFO***********");
-				System.out.println("title : " + title + "\n" + 
-								"keywords : " + keywords + "\n" + 
-								"description : " + description + "\n" + 
-								"relativeContent : " + relativeContent);
-			}
-			
-			Field titleField = new Field("title", title, Field.Store.YES, Field.Index.ANALYZED);
-			Field keywordsField = new Field("keywords", keywords, Field.Store.YES, Field.Index.ANALYZED);
-			Field descriptionField = new Field("description", description, Field.Store.YES, Field.Index.ANALYZED);
-			Field contentField = new Field("content", relativeContent, Field.Store.YES, Field.Index.ANALYZED);
+			Field titleField = new TextField("title", title, Field.Store.YES);
+			Field keywordsField = new TextField("keywords", keywords, Field.Store.YES);
+			Field descriptionField = new TextField("description", description, Field.Store.YES);
+			Field contentField = new TextField("content", relativeContent, Field.Store.YES);
+			titleField.setBoost(pagerank);
+			keywordsField.setBoost(pagerank);
+			descriptionField.setBoost(pagerank);
+			contentField.setBoost(pagerank);
 			document.add(titleField);
 			document.add(keywordsField);
 			document.add(descriptionField);

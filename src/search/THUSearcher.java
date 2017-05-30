@@ -8,8 +8,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
+//import org.apache.lucene.queryParser.ParseException;
+//import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -21,8 +22,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
-import lucene.SimpleQuery;
-import lucene.SimpleSimilarity;
+//import lucene.SimpleQuery;
+//import lucene.SimpleSimilarity;
 
 public class THUSearcher {
 	private IndexReader reader;
@@ -36,7 +37,7 @@ public class THUSearcher {
 			System.out.println(System.getProperty("user.dir"));
 			reader = IndexReader.open(FSDirectory.open(new File(indexdir)));
 			searcher = new IndexSearcher(reader);
-			searcher.setSimilarity(new SimpleSimilarity());
+//			searcher.setSimilarity(new SimpleSimilarity());
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -46,7 +47,9 @@ public class THUSearcher {
 		// System.out.println(queryString + " : " + field);
 		try {
 			Term term=new Term(field,queryString);
-			Query query=new SimpleQuery(term,avgLength);
+//			Query query=new SimpleQuery(term,avgLength);
+			QueryParser parser = new QueryParser(Version.LUCENE_47, field, analyzer);
+			Query query = parser.parse(queryString);
 			// System.out.println(query);
 			query.setBoost(1.0f);
 			//Weight w=searcher.createNormalizedWeight(query);
