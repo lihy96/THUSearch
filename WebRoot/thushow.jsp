@@ -102,7 +102,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
   		<p>
   		<tr>
   			<!-- title -->
-	  			<a href="<%=htmlPath+htmlPaths[i]%>"><%=(currentPage-1)*10+i+1%>. 
+	  			<a href="<%=htmlPaths[i]%>"><%=(currentPage-1)*10+i+1%>. 
 	  			<%
 	  				String title = htmlTags[i];
 	  				int tix = title.indexOf(currentQuery);

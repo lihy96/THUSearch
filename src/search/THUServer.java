@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ansj.splitWord.analysis.ToAnalysis;
+import org.ansj.util.MyStaticValue;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -36,7 +37,7 @@ import java.io.*;
 public class THUServer extends HttpServlet{
 	public static final int PAGE_RESULT=10;
 	public static final String indexDir="forIndex";
-	public static final String htmlDir="/mirror/";
+	public static final String htmlDir="http://";
 	private THUSearcher search=null;
 	public THUServer(){
 		super();
@@ -79,7 +80,16 @@ public class THUServer extends HttpServlet{
 			/**
 			 * ansj_seg word-spliter package
 			 */
+			PrintStream out = System.out;
+			System.setOut(new PrintStream("/dev/null"));
+			MyStaticValue.isRealName = true;
+			MyStaticValue.isNameRecognition = true;
+			MyStaticValue.isNumRecognition = true;
+			MyStaticValue.isQuantifierRecognition = true;
+//			MyStaticValue.ENV.put("dic", "http://maven.nlpcn.org/down/library/default.dic");
+//			MyStaticValue.ENV.put("ambiguity", "http://maven.nlpcn.org/down/library/ambiguity.dic");
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
+			System.setOut(out);
 			System.out.print("ansj result : ");
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
@@ -265,7 +275,11 @@ public class THUServer extends HttpServlet{
 			System.out.println("doc=" + hits[i].doc + " score="
 					+ hits[i].score + " title= "+doc.get("title"));
 			tags[i] = doc.get("title");
-			paths[i] = htmlDir + doc.get("urlPath");
+			String absHtmlPath = htmlDir + doc.get("urlPath");
+			if (absHtmlPath.endsWith("index.html")) {
+				absHtmlPath = absHtmlPath.substring(0, absHtmlPath.length() - 10);
+			}
+			paths[i] = absHtmlPath;
 			String content = doc.get("content");
 			if (content.length() < 300)
 				absContent[i] = doc.get("content");
