@@ -23,7 +23,7 @@ public class Analyzer {
 
 	public static void main(String[] args) {
 		ArrayList<String> fs = new ArrayList<String>();
-		fs.add("html"); fs.add("txt"); fs.add("xml");
+		fs.add("html"); fs.add("htm"); fs.add("txt"); fs.add("xml");
 		fs.add("doc"); fs.add("docx"); fs.add("pdf");
 		Analyzer an = new Analyzer();
 		an.formatSupport = fs;
@@ -53,23 +53,6 @@ public class Analyzer {
 				if(cc % 100==0){
 					System.out.println("process "+cc);
 				}
-	    		// 文件太大, 大于100M, 删除, 减小存储压力
-//	    		double mBytes = file.length() / (1024 * 1024);
-//	    		if (mBytes > 100) {
-//	    			file.delete();
-//	    			continue;
-//	    		}
-	    		
-//	    		int idx = file.getName().lastIndexOf(".");
-//	    		if (idx < 1) continue;
-//	    		String dotFile = file.getName().substring(idx+1);
-//				
-//	    		for (String format : formatSupport) {
-//	    			if (dotFile.equalsIgnoreCase(format)) {
-//	    				fileList.put(file.getPath(), __id++);
-//						break;
-//	    			}
-//	    		}
 	    	}
 		}catch(Exception e){
 			e.printStackTrace();
