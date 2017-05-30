@@ -12,7 +12,7 @@ public class CommonParser {
 		THUIndexer.averageLength += title.length() / THUIndexer.DIV_NUM;
 		
 		Field contentField = new Field("content", content, Field.Store.YES, Field.Index.ANALYZED);
-		THUIndexer.averageLength += title.length() / THUIndexer.DIV_NUM;
+		THUIndexer.averageLength += content.length() / THUIndexer.DIV_NUM;
 		
 		document.add(titleField);
 		document.add(contentField);

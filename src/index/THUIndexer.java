@@ -32,7 +32,8 @@ import javax.xml.parsers.*;
 public class THUIndexer {
 	private Analyzer analyzer; 
     private IndexWriter indexWriter;
-	private static String indexDir, globalDir, srcDir;
+    private static String outDir;
+	private static String indexDir, globalPath, srcDir, fileListPath;
 
     public static float averageLength=1.0f;
     public static float DIV_NUM = 1000.0f;
@@ -68,10 +69,12 @@ public class THUIndexer {
 		Map<String, String> confs = new HashMap<String, String>();
 		ConfReader.confRead("conf/indexer.conf", confs);
 		
-		if ((indexDir = confs.get("IndexDir")) == null)
-			indexDir = "forIndex/index";
-		if ((globalDir = confs.get("GlobalDir")) == null)
-			globalDir = "forIndex/global.txt";
+		if ((outDir = confs.get("output.dir")) == null)
+			outDir = "forIndex";
+		indexDir = outDir + "/index";
+		globalPath = outDir + "/global.txt";
+		fileListPath = outDir + "/fileList.txt";
+		
 		if ((srcDir = confs.get("SrcDir")) == null)
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
@@ -82,18 +85,10 @@ public class THUIndexer {
 		 */
 		SimpleIndex si = new SimpleIndex();
 		ArrayList<String> fs = new ArrayList<String>();
-		fs.add("html"); fs.add("txt"); fs.add("xml");
+		fs.add("html"); fs.add("htm"); fs.add("txt"); fs.add("xml");
 		fs.add("doc"); fs.add("docx"); fs.add("pdf");
-		si.setParam(srcDir, fs);
+		si.setParam(srcDir, fileListPath, outDir, fs);
 		si.simpleIndex();
-
-		/**
-		 * calculate page rank for each html file
-		 */
-		PageRank pr = new PageRank(0.15, 20, si.map, si.webs);
-		pr.calPageRank();
-		pr.sort(); 
-		pr.saveInfo();
 		
 		/**
 		 * index websites for later search
@@ -110,7 +105,7 @@ public class THUIndexer {
 //		pr.saveInfo();
 //		indexer.indexMirrorWebSites(srcDir);
 		
-		indexer.saveGlobals(globalDir);
+		indexer.saveGlobals(globalPath);
 	}
 	
 	/**
@@ -136,19 +131,20 @@ public class THUIndexer {
     		
     		String content = "";
 			Document document = new Document();
-			double pagerank = webs.get(entry.getValue()).pagerank * 10;
+			double pagerank = webs.get(entry.getValue()).pagerank;
 			document.setBoost((float)pagerank);
 
 			/**
 			 *  对不用格式文档进行解析，目前支持如下格式：
-			 *  	html, txt, xml,
+			 *  	html,　htm, txt, xml,
 			 *  	doc, docx, pdf
 			 */
-			System.setOut(dump);
-			System.setErr(dump);
-    		if (dotFile.equalsIgnoreCase("html")) {
+//			System.setOut(dump);
+//			System.setErr(dump);
+    		if (dotFile.equalsIgnoreCase("html") ||
+    			dotFile.equalsIgnoreCase("htm")) {
 				content = FileOperator.readFile(file.getPath());
-				HTMLParser.htmlParser(content, document, false);
+				HTMLParser.htmlParser(content, document);
 			}
     		else if (dotFile.equalsIgnoreCase("txt")) {
 				content = FileOperator.readFile(file.getPath());
@@ -170,11 +166,13 @@ public class THUIndexer {
     			content = PDFReader.readPDFFile(file.getPath());
     			CommonParser.commParser(name, content, document);
     		}
-    		System.setErr(err);
-    		System.setOut(out);
+//    		System.setErr(err);
+//    		System.setOut(out);
 
-    		if (!content.equals("")) {				
-				String filePath = file.getPath().substring(srcDir.length());
+    		if (!content.equals("")) {
+				String filePath = file.getPath();
+				System.out.println(filePath);
+    			System.out.println(document.toString());
 				Field UrlPath = new Field("urlPath", filePath, 
 												Field.Store.YES, Field.Index.NO);
 				document.add(UrlPath);
@@ -188,98 +186,4 @@ public class THUIndexer {
 		System.out.println("total "+indexWriter.numDocs()+" documents");
 		indexWriter.close();
     }
-
-    private void indexSpecificWebsite(File website) {
-    	try {
-	    	File[] res = website.listFiles();
-	    	for (File file : res) {
-	    		if (file.isDirectory()) {
-	    			indexSpecificWebsite(file);
-	    			continue;
-	    		}
-
-	    		// 文件太大, 大于100M, 删除, 减小存储压力
-	    		double mBytes = file.length() / (1024 * 1024);
-	    		if (mBytes > 100) {
-	    			file.delete();
-	    			continue;
-	    		}
-	    		
-	    		int idx = file.getName().lastIndexOf(".");
-	    		if (idx < 1) continue;
-	    		
-	    		String dotFile = file.getName().substring(idx+1);
-	    		String name = file.getName().substring(0, idx);
-	    		
-	    		// 下载错误的文件，直接删除
-	    		if (dotFile.equalsIgnoreCase("wmv")		||
-	    			dotFile.equalsIgnoreCase("flv")) {
-	    			System.out.println(file.getAbsolutePath());
-	    			file.delete();
-	    			continue;
-	    		}
-	    		
-	    		String content = "";
-				Document document = new Document();
-				
-				/**
-				 *  对不用格式文档进行解析，目前支持如下格式：
-				 *  	html, txt, xml,
-				 *  	doc, docx, pdf
-				 */
-	    		if (dotFile.equalsIgnoreCase("html")) {
-					content = FileOperator.readFile(file.getAbsolutePath());
-					HTMLParser.htmlParser(content, document, false);
-				}
-	    		else if (dotFile.equalsIgnoreCase("txt")) {
-					content = FileOperator.readFile(file.getAbsolutePath());
-	    			CommonParser.commParser(name, content, document);
-	    		}
-	    		else if (dotFile.equalsIgnoreCase("xml")) {
-	    			content = XMLReader.readXMLFile(file.getAbsolutePath());
-	    			CommonParser.commParser(name, content, document);
-	    		}
-	    		else if (dotFile.equalsIgnoreCase("doc")) {
-	    			content = DocReader.readDocFile(file.getAbsolutePath());
-	    			CommonParser.commParser(name, content, document);
-	    		}
-	    		else if (dotFile.equalsIgnoreCase("docx")) {
-	    			content = DocReader.readDocxFile(file.getAbsolutePath());
-	    			CommonParser.commParser(name, content, document);
-	    		}
-	    		else if (dotFile.equalsIgnoreCase("pdf")) {
-	    			content = PDFReader.readPDFFile(file.getAbsolutePath());
-	    			CommonParser.commParser(name, content, document);
-	    		}
-
-	    		if (!content.equals("")) {
-					String filePath = file.getPath().substring(srcDir.length());
-					Field UrlPath = new Field("urlPath", filePath, 
-													Field.Store.YES, Field.Index.NO);
-					document.add(UrlPath);
-					indexWriter.addDocument(document);
-	    		}
-	    	}
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-    }
-
-	@SuppressWarnings("unused")
-	private void indexMirrorWebSites(String srcDir){
-		try{
-			File websites = new File(srcDir);
-			File[] wss = websites.listFiles();
-			for(File website : wss) {
-				indexSpecificWebsite(website);
-			}
-			
-			averageLength /= indexWriter.numDocs();
-			System.out.println("average length = "+averageLength);
-			System.out.println("total "+indexWriter.numDocs()+" documents");
-			indexWriter.close();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
 }
