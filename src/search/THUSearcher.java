@@ -8,8 +8,11 @@ import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
@@ -23,6 +26,10 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
+
+import com.sun.xml.internal.ws.encoding.SwACodec;
+
+import index.SimilarWords;
 
 
 public class THUSearcher {
@@ -39,15 +46,29 @@ public class THUSearcher {
 	public THUSearcher(String indexdir){
 		analyzer = new IKAnalyzer();
 		try{
-			boosts.put("title", 1000.0f);
-			boosts.put("keyword", 100.0f);
-			boosts.put("content", 50.0f);    
-			boosts.put("link", 10.0f);
+			boosts.put("title", 100.0f);
+			boosts.put("keyword", 10.0f);
+			boosts.put("content", 5.0f);    
+			boosts.put("link", 1.0f);
 			
 			System.out.println(System.getProperty("user.dir"));
 			reader = IndexReader.open(FSDirectory.open(new File(indexdir)));
 			searcher = new IndexSearcher(reader);
 			searcher.setSimilarity(new BM25Similarity());
+	
+//			System.out.println("Intialize Similarword.");
+//			TermsEnum termEnum = MultiFields.getTerms(reader, "content").iterator(null);
+//			int cc = 0;
+//			while (termEnum.next() != null) {
+//				cc ++;
+//				if (cc % 10000 == 0) System.out.println("sim word : " + cc);
+//				
+//				DocsEnum docEnum = MultiFields.getTermDocsEnum(reader, MultiFields.getLiveDocs(reader), "content", termEnum.term());
+//				int doc;
+//				while((doc = docEnum.nextDoc())!= DocsEnum.NO_MORE_DOCS ){
+//					SimilarWords.add(termEnum.term().utf8ToString(), docEnum.freq(), doc);
+//				}
+//			}
 		}catch(IOException e){
 			e.printStackTrace();
 		}

@@ -28,6 +28,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.jsoup.Jsoup;
+import org.junit.experimental.theories.Theories;
 
 import javax.xml.parsers.*; 
 
@@ -81,9 +82,8 @@ public class THUIndexer {
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
 		THUIndexer indexer=new THUIndexer(indexDir);
-		
 		/**
-		 * page rank preparation
+		 * page rank 
 		 */
 		SimpleIndex si = new SimpleIndex();
 		ArrayList<String> fs = new ArrayList<String>();
@@ -96,15 +96,15 @@ public class THUIndexer {
 		 * index websites for later search
 		 */
 		Map<String, Integer> fileList = si.getFileList();
-		System.out.println("Index Document : " + fileList.size());
-		try {
-			indexer.indexDocuments(fileList, si.webs);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+//		System.out.println("Index Document : " + fileList.size());
+//		try {
+//			indexer.indexDocuments(fileList, si.webs);
+//		}
+//		catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
-		indexer.saveGlobals(globalPath);
+		indexer.simWords(fileList);
 	}
 	
 	/**
@@ -131,13 +131,7 @@ public class THUIndexer {
     		String content = "";
 			Document document = new Document();
 			float pagerank = (float)Math.sqrt(webs.get(entry.getValue()).pagerank  * 100);
-//			document.setBoost((float)pagerank);
 
-			/**
-			 *  对不用格式文档进行解析，目前支持如下格式：
-			 *  	html, txt, xml,
-			 *  	doc, docx, pdf
-			 */
 			System.setOut(dump);
 //			System.setErr(dump);
     		if (dotFile.equalsIgnoreCase("html") ||
@@ -178,9 +172,32 @@ public class THUIndexer {
 		
 		averageLength /= indexWriter.numDocs();
 		averageLength *= DIV_NUM;
+		saveGlobals(globalPath);
 		System.out.println("average length = "+averageLength);
 		System.out.println("total "+indexWriter.numDocs()+" documents");
 		indexWriter.close();
+
+
     }
+	
+	public void simWords(Map<String, Integer> fileList) {
+		SimilarWords sw = new SimilarWords();
+		int count = 0;
+		IKAnalyzer ikAnalyzer = new IKAnalyzer();
+		for (Entry<String, Integer> entry : fileList.entrySet()) {
+			count ++;
+			if (count % 100 == 0) {
+				System.out.println("Token process : " + count);
+			}
+			
+			if (entry.getKey().endsWith(".html") || 
+				entry.getKey().endsWith(".htm")) {
+				String content = FileOperator.readFile(entry.getKey());
+				HTMLParser.tokenParser(sw, entry.getValue(), content, ikAnalyzer);
+			}
+		}
+		sw.init();
+		sw.save(outDir + "/relation.txt");
+	}
 
 }

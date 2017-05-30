@@ -27,6 +27,8 @@ import org.apache.lucene.util.Version;
 import org.apache.xmlbeans.impl.xb.xsdschema.Element;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
+import index.SimilarWords;
+
 import java.util.*;
 
 import java.math.*;
@@ -38,11 +40,13 @@ public class THUServer extends HttpServlet{
 	public static final int PAGE_RESULT=10;
 	public static final String indexDir="forIndex";
 	public static final String htmlDir="http://";
+	private SimilarWords sw = new SimilarWords();
 	private THUSearcher search=null;
 	public THUServer(){
 		super();
 		search=new THUSearcher(new String(indexDir+"/index"));
 		search.loadGlobals(new String(indexDir+"/global.txt"));
+		sw.load(indexDir+"/relation.txt");
 	}
 	
 	public ScoreDoc[] showList(ScoreDoc[] results,int page){
@@ -88,10 +92,13 @@ public class THUServer extends HttpServlet{
 			MyStaticValue.isQuantifierRecognition = true;
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
 			System.setOut(out);
+			
+			ArrayList<String> simWords = new ArrayList<String>();
 			System.out.print("ansj result : ");
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
+				simWords.addAll(sw.find(word.getName(), 5));
 //				ScoreDoc[] tmpHits = getHits(word.getName(), page);
 				TopDocs td = search.searchQuery(word.getName(), 100);
 	            addHits(hits, td.scoreDocs, 1.0f);
@@ -129,7 +136,7 @@ public class THUServer extends HttpServlet{
 					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));
 			}*/
 			
-	        setRequestAttribute(request, response, hits, queryString, page);
+	        setRequestAttribute(request, response, hits, simWords, queryString, page);
 			
 		}
 	}
@@ -167,11 +174,16 @@ public class THUServer extends HttpServlet{
 	}
 	
 	private void setRequestAttribute(HttpServletRequest request, HttpServletResponse response,
-					ArrayList<ScoreDoc> hits, String queryString, int page) {
+					ArrayList<ScoreDoc> hits, ArrayList<String> _simWords, String queryString, int page) {
 		String[] tags=null;
 		String[] paths=null;
 		String[] absContent=null;
 		String[] imgPaths = null;
+		String[] simWords = null;
+		simWords = _simWords.toArray(new String[_simWords.size()]);
+		for (String simword : simWords)
+			System.out.print(simword + ", ");
+		System.out.println("");
 		
 		if (hits.size() != 0) {
 			Collections.sort(hits, new ScoreComparator());
