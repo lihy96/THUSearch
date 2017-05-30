@@ -85,7 +85,7 @@ public class THUServer extends HttpServlet{
 			 * ansj_seg word-spliter package
 			 */
 			PrintStream out = System.out;
-			System.setOut(new PrintStream("/dev/null"));
+			System.setOut(new PrintStream("err.log"));
 			MyStaticValue.isRealName = true;
 			MyStaticValue.isNameRecognition = true;
 			MyStaticValue.isNumRecognition = true;
@@ -195,6 +195,10 @@ public class THUServer extends HttpServlet{
 			paths = new String[htmls.length];
 			absContent = new String[htmls.length];
 			imgPaths = new String[htmls.length];
+			
+			imgPaths[0] = "main2.png";
+			imgPaths[1] = "bj2.jpeg";
+			
 			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}
 		else {
