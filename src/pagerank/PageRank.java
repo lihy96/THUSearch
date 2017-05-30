@@ -27,7 +27,11 @@ public class PageRank {
 	private String outDir;
 	
 	private String pr_filepath;
+	private String rank_path;
 	private String pr_analyze;
+	
+	private double MAX_PAGERANK;
+	private int MAX_RANK = 10000;
 
 	public Map<Integer, ArrayList<Integer>> map = null;
 	public Map<Integer, WebSite> webs = null;
@@ -47,6 +51,7 @@ public class PageRank {
 		this.outDir = _out;
 		pr_filepath = outDir + "/pagerank.txt";
 		pr_analyze = outDir + "/analyze.txt";
+		rank_path = outDir + "/rankToInt.txt";
 	}
 
 	public void calPageRank() {
@@ -54,20 +59,39 @@ public class PageRank {
 		
 		File od = new File(pr_filepath);
 		if (od.exists()) {
-			loadWebs();
+			loadWebs(pr_filepath);
 		}
 		else {
 			initPageRank();
 			iteratePageRank();
 			sort();
-			saveInfo();
+			saveInfo(pr_filepath);
+		}
+		
+		File rp = new File(rank_path);
+		if (rp.exists()) {
+			loadWebs(rank_path);
+		}
+		else {
+			MAX_PAGERANK = webs.entrySet().iterator().next().getValue().pagerank;
+			splitToInt();
+			saveInfo(rank_path);
 		}
 	}
 	
-	private void loadWebs() {
+	private void splitToInt() {
+		System.out.println("Split pagerank to int.");
+		for (Entry<Integer, WebSite> entry : webs.entrySet()) {
+			WebSite ws = entry.getValue();
+			double tmp = Math.log(ws.pagerank * MAX_RANK + 1) / MAX_PAGERANK;
+			ws.pagerank = (int)tmp + 1;
+		}
+	}
+	
+	private void loadWebs(String path) {
 		try {
 			System.out.println("Loading page rank file.");
-			BufferedReader br = new BufferedReader(new FileReader(pr_filepath));
+			BufferedReader br = new BufferedReader(new FileReader(path));
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.equals("")) continue;
@@ -162,13 +186,13 @@ public class PageRank {
 		}
 	}
 	
-	public void saveInfo() {
+	public void saveInfo(String path) {
 		
-		DirectoryChecker.dirCheck(pr_filepath);
+		DirectoryChecker.dirCheck(path);
 		
 		try {
 			System.out.println("Saving page rank file.");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(pr_filepath));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
 			for (Entry<Integer, WebSite> entry : webs.entrySet()) {
 				WebSite ws = entry.getValue();
 				bw.write(ws.name + "\t" + ws.id + "\t" + ws.pagerank + "\n");
@@ -179,38 +203,38 @@ public class PageRank {
 			e.printStackTrace();
 		}
 
-		try {
-			System.out.println("Saving abstract analyze file.");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(pr_analyze));
-			
-			bw.write("***********************Your Confiure Settings***************************\n");
-			bw.write("* alpha : " + alpha + "\n");
-			bw.write("* iteration number : " + TN + "\n");
-			bw.write("\n\n");
-			
-			bw.write("*****************************Output Note********************************\n");
-			bw.write("* analyze.txt : some abstract infomation are stored in here.\n");
-			bw.write("* pagerank.txt : the unsorted website stored.\n");
-			bw.write("* sortedpagerank.txt : the website are listed by pagerank value.\n");
-			bw.write("\n\n");
-			
-			bw.write("***************************Abstract Output******************************\n");
-			bw.write("* Website of zero outdegree count : " + ZERO_OUT_DEGREE + "\n");
-			bw.write("* Total web site number : " + N + "\n");
-			bw.write("* Max page rank web site : " + "\n");
-			int i = 0;
-			for (Entry<Integer, WebSite> entry : webs.entrySet()) {
-				if (i > 9) break;
-				WebSite ws = entry.getValue();
-				bw.write("* " + i + "\t" + ws.name + "\t\t" + ws.id + ":" + ws.pagerank + "\n");
-				++i;
-			}
-			
-			bw.close();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			System.out.println("Saving abstract analyze file.");
+//			BufferedWriter bw = new BufferedWriter(new FileWriter(pr_analyze));
+//			
+//			bw.write("***********************Your Confiure Settings***************************\n");
+//			bw.write("* alpha : " + alpha + "\n");
+//			bw.write("* iteration number : " + TN + "\n");
+//			bw.write("\n\n");
+//			
+//			bw.write("*****************************Output Note********************************\n");
+//			bw.write("* analyze.txt : some abstract infomation are stored in here.\n");
+//			bw.write("* pagerank.txt : the unsorted website stored.\n");
+//			bw.write("* sortedpagerank.txt : the website are listed by pagerank value.\n");
+//			bw.write("\n\n");
+//			
+//			bw.write("***************************Abstract Output******************************\n");
+//			bw.write("* Website of zero outdegree count : " + ZERO_OUT_DEGREE + "\n");
+//			bw.write("* Total web site number : " + N + "\n");
+//			bw.write("* Max page rank web site : " + "\n");
+//			int i = 0;
+//			for (Entry<Integer, WebSite> entry : webs.entrySet()) {
+//				if (i > 9) break;
+//				WebSite ws = entry.getValue();
+//				bw.write("* " + i + "\t" + ws.name + "\t\t" + ws.id + ":" + ws.pagerank + "\n");
+//				++i;
+//			}
+//			
+//			bw.close();
+//		}
+//		catch (Exception e) {
+//			e.printStackTrace();
+//		}
 
 	}
 	

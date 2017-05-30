@@ -75,15 +75,11 @@ public class SimpleIndex {
 
 		PageRank pr = new PageRank(0.15, 20, fpi.map, fpi.webs, "forIndex");
 		pr.calPageRank();
-		pr.saveInfo();
+//		pr.saveInfo();
 	}
 	
 	public Map<String, Integer> getFileList() {
 		return fileList;
-	}
-	
-	public void setParam(String src_dir, ArrayList<String> fs) {
-		setParam(src_dir, null, null, fs);
 	}
 	
 	public void setParam(String src_dir, String des_file, String out_dir, ArrayList<String> fs) {
