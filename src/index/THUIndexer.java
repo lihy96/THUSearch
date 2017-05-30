@@ -130,7 +130,7 @@ public class THUIndexer {
     		
     		String content = "";
 			Document document = new Document();
-			float pagerank = (float)webs.get(entry.getValue()).pagerank * 10;
+			float pagerank = (float)webs.get(entry.getValue()).pagerank;
 //			document.setBoost((float)pagerank);
 
 			/**

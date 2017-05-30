@@ -86,16 +86,15 @@ public class THUServer extends HttpServlet{
 			MyStaticValue.isNameRecognition = true;
 			MyStaticValue.isNumRecognition = true;
 			MyStaticValue.isQuantifierRecognition = true;
-//			MyStaticValue.ENV.put("dic", "http://maven.nlpcn.org/down/library/default.dic");
-//			MyStaticValue.ENV.put("ambiguity", "http://maven.nlpcn.org/down/library/ambiguity.dic");
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
 			System.setOut(out);
 			System.out.print("ansj result : ");
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
-				ScoreDoc[] tmpHits = getHits(word.getName(), page);
-	            addHits(hits, tmpHits, 1);
+//				ScoreDoc[] tmpHits = getHits(word.getName(), page);
+				TopDocs td = search.searchQuery(word.getName(), 100);
+	            addHits(hits, td.scoreDocs, 1.0f);
 			}
 			System.out.println("");
 			
@@ -135,44 +134,34 @@ public class THUServer extends HttpServlet{
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private ScoreDoc[] getHits(String queryString, int page) {
-		TopDocs results=null;
 		ScoreDoc[] hits = null;
 
 		ArrayList<ScoreDoc> moreHits = new ArrayList<ScoreDoc>();
-		/* Get the average score of images which matchs more than one query string,
-		 * Set the status code 0.
-		 */
-		int statusCode = 0; 
+		TopDocs linkRes = search.searchQuery(queryString, "link", 100);
+		if (linkRes != null) {
+			addHits(moreHits, linkRes.scoreDocs, 1.0f);
+		}
 		TopDocs contentRes = search.searchQuery(queryString, "content", 100);
 		if (contentRes != null) {
-			addHits(moreHits, contentRes.scoreDocs, statusCode);
+			addHits(moreHits, contentRes.scoreDocs, 5.0f);
 		}
-		
-		TopDocs descriptionRes = search.searchQuery(queryString, "description", 100);
-		if (descriptionRes != null) {
-			addHits(moreHits, descriptionRes.scoreDocs, statusCode);
-		}
-		
 		TopDocs keywordsRes = search.searchQuery(queryString, "keywords", 100);
 		if (keywordsRes != null) {
-			addHits(moreHits, keywordsRes.scoreDocs, statusCode);
+			addHits(moreHits, keywordsRes.scoreDocs, 10.0f);
 		}
-		
 		TopDocs titleRes = search.searchQuery(queryString, "title", 100);
 		if (titleRes != null) {
-			addHits(moreHits, titleRes.scoreDocs, statusCode);
+			addHits(moreHits, titleRes.scoreDocs, 100.0f);
 		}
 		
-//		if (hits == null || hits.length == 0) {
-//			System.out.println("abstract search null");
-			if (moreHits.size() != 0) {  
-				hits = moreHits.toArray(new ScoreDoc[moreHits.size()]);
-			}
-			else {
-				System.out.println("relative search null");
-			}
-//		}
+		if (moreHits.size() != 0) {  
+			hits = moreHits.toArray(new ScoreDoc[moreHits.size()]);
+		}
+		else {
+			System.out.println("relative search null");
+		}
 		
 		return hits;
 	}
@@ -220,7 +209,7 @@ public class THUServer extends HttpServlet{
 		this.doGet(request, response);
 	}
 	
-	private void addHits(ArrayList<ScoreDoc> moreHits, ScoreDoc[] hits, int statusCode) {
+	private void addHits(ArrayList<ScoreDoc> moreHits, ScoreDoc[] hits, float boost) {
 		if (hits == null) return ;
 		for (int i = 0; i < hits.length; ++i) {
 /*			Document doc = search.getDoc(hits[i].doc);
@@ -229,25 +218,7 @@ public class THUServer extends HttpServlet{
 				+ doc.get("picPath")+ " tag= "+doc.get("abstract"));*/
 			int flag = matchHits(hits[i], moreHits);
 			if (flag != -1) {
-				switch (statusCode) {
-				case 0:
-					/* For different field, such as "abstract", "content", "title"... and so on.
-					 * I compute the score by importance in average.
-					 * And the list sequence is :
-					 * title, keywords, description, content.
-					 */
-					moreHits.get(flag).score = (moreHits.get(flag).score + hits[i].score) / 2;
-					break;
-				case 1:
-					/* For different query string, need to merge the result of hits.
-					 * It's obvious that pictures matching more query string will get higher score.
-					 */
-					moreHits.get(flag).score = moreHits.get(flag).score + hits[i].score;
-					break;
-				default:
-					System.out.println("Error");
-					break;
-				}
+				moreHits.get(flag).score += hits[i].score * boost;
 			}
 			else {
 				moreHits.add(hits[i]);

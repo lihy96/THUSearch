@@ -2,15 +2,16 @@ package search;
 
 import java.io.*;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
-//import org.apache.lucene.queryParser.ParseException;
-//import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -18,12 +19,11 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.Weight;
+import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
-//import lucene.SimpleQuery;
-//import lucene.SimpleSimilarity;
 
 public class THUSearcher {
 	private IndexReader reader;
@@ -31,31 +31,47 @@ public class THUSearcher {
 	private Analyzer analyzer;
 	private float avgLength=1.0f;
 	
+
+	private String[] fields = new String[] {"title", "keywords", "content", "link"};
+	private Map<String, Float> boosts = new HashMap<String, Float>();
+	
+	@SuppressWarnings("deprecation")
 	public THUSearcher(String indexdir){
 		analyzer = new IKAnalyzer();
 		try{
+			boosts.put("title", 1000.0f);
+			boosts.put("keyword", 100.0f);
+			boosts.put("content", 50.0f);    
+			boosts.put("link", 10.0f);
+			
 			System.out.println(System.getProperty("user.dir"));
 			reader = IndexReader.open(FSDirectory.open(new File(indexdir)));
 			searcher = new IndexSearcher(reader);
-//			searcher.setSimilarity(new SimpleSimilarity());
+			searcher.setSimilarity(new BM25Similarity());
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 	}
 	
+	public TopDocs searchQuery(String queryString, int maxnum) {
+		try {
+			QueryParser parser = new MultiFieldQueryParser(Version.LUCENE_47, fields, analyzer, boosts);
+			Query query = parser.parse(queryString);
+			TopDocs results = searcher.search(query, maxnum);
+			return results;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public TopDocs searchQuery(String queryString,String field,int maxnum){
-		// System.out.println(queryString + " : " + field);
 		try {
 			Term term=new Term(field,queryString);
-//			Query query=new SimpleQuery(term,avgLength);
 			QueryParser parser = new QueryParser(Version.LUCENE_47, field, analyzer);
 			Query query = parser.parse(queryString);
-			// System.out.println(query);
 			query.setBoost(1.0f);
-			//Weight w=searcher.createNormalizedWeight(query);
-			//System.out.println(w.getClass());
 			TopDocs results = searcher.search(query, maxnum);
-			// System.out.println(results);
 			return results;
 		} catch (Exception e) {
 			e.printStackTrace();
