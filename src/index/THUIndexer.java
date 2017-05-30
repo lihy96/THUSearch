@@ -34,7 +34,8 @@ import javax.xml.parsers.*;
 public class THUIndexer {
 	private Analyzer analyzer; 
     private IndexWriter indexWriter;
-	private static String indexDir, globalDir, srcDir;
+    private static String outDir;
+	private static String indexDir, globalPath, srcDir, fileListPath;
 
     public static float averageLength=1.0f;
     public static float DIV_NUM = 1000.0f;
@@ -70,10 +71,12 @@ public class THUIndexer {
 		Map<String, String> confs = new HashMap<String, String>();
 		ConfReader.confRead("conf/indexer.conf", confs);
 		
-		if ((indexDir = confs.get("IndexDir")) == null)
-			indexDir = "forIndex/index";
-		if ((globalDir = confs.get("GlobalDir")) == null)
-			globalDir = "forIndex/global.txt";
+		if ((outDir = confs.get("output.dir")) == null)
+			outDir = "forIndex";
+		indexDir = outDir + "/index";
+		globalPath = outDir + "/global.txt";
+		fileListPath = outDir + "/fileList.txt";
+		
 		if ((srcDir = confs.get("SrcDir")) == null)
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
@@ -84,18 +87,10 @@ public class THUIndexer {
 		 */
 		SimpleIndex si = new SimpleIndex();
 		ArrayList<String> fs = new ArrayList<String>();
-		fs.add("html"); fs.add("txt"); fs.add("xml");
+		fs.add("html"); fs.add("htm"); fs.add("txt"); fs.add("xml");
 		fs.add("doc"); fs.add("docx"); fs.add("pdf");
-		si.setParam(srcDir, fs);
+		si.setParam(srcDir, fileListPath, outDir, fs);
 		si.simpleIndex();
-
-		/**
-		 * calculate page rank for each html file
-		 */
-		PageRank pr = new PageRank(0.15, 20, si.map, si.webs);
-		pr.calPageRank();
-		pr.sort(); 
-		pr.saveInfo();
 		
 		/**
 		 * index websites for later search
@@ -109,10 +104,7 @@ public class THUIndexer {
 			e.printStackTrace();
 		}
 		
-//		pr.saveInfo();
-//		indexer.indexMirrorWebSites(srcDir);
-		
-		indexer.saveGlobals(globalDir);
+		indexer.saveGlobals(globalPath);
 	}
 	
 	/**
@@ -147,8 +139,9 @@ public class THUIndexer {
 			 *  	doc, docx, pdf
 			 */
 			System.setOut(dump);
-			System.setErr(dump);
-    		if (dotFile.equalsIgnoreCase("html")) {
+//			System.setErr(dump);
+    		if (dotFile.equalsIgnoreCase("html") ||
+    			dotFile.equalsIgnoreCase("htm")) {
 				content = FileOperator.readFile(file.getPath());
 				HTMLParser.htmlParser(content, document, pagerank);
 			}
@@ -172,7 +165,7 @@ public class THUIndexer {
     			content = PDFReader.readPDFFile(file.getPath());
     			CommonParser.commParser(name, content, document, pagerank);
     		}
-    		System.setErr(err);
+//    		System.setErr(err);
     		System.setOut(out);
 
     		if (!content.equals("")) {				

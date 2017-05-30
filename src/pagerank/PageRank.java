@@ -1,7 +1,11 @@
 package pagerank;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -9,11 +13,21 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import util.DirectoryChecker;
+import util.FileOperator;
 
 public class PageRank {
 	private double alpha;
 	private int TN;
+	private String outDir;
+	
+	private String pr_filepath;
+	private String pr_analyze;
 
 	public Map<Integer, ArrayList<Integer>> map = null;
 	public Map<Integer, WebSite> webs = null;
@@ -25,17 +39,51 @@ public class PageRank {
 	private Double S; // total page rank with no out degree web site
 	
 	public PageRank(double alpha, int n, Map<Integer, ArrayList<Integer>> _map,
-					Map<Integer, WebSite> _webs) {
+					Map<Integer, WebSite> _webs, String _out) {
 		this.alpha = alpha;
 		this.TN = n;
 		this.map = _map;
 		this.webs = _webs;
+		this.outDir = _out;
+		pr_filepath = outDir + "/pagerank.txt";
+		pr_analyze = outDir + "/analyze.txt";
 	}
 
 	public void calPageRank() {
-		initPageRank();
-
-		iteratePageRank();
+		assert(outDir == null);
+		
+		File od = new File(pr_filepath);
+		if (od.exists()) {
+			loadWebs();
+		}
+		else {
+			initPageRank();
+			iteratePageRank();
+			sort();
+			saveInfo();
+		}
+	}
+	
+	private void loadWebs() {
+		try {
+			System.out.println("Loading page rank file.");
+			BufferedReader br = new BufferedReader(new FileReader(pr_filepath));
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (line.equals("")) continue;
+				String[] info = line.trim().split("\t");
+				assert(info.length != 3);
+				WebSite ws = new WebSite();
+				ws.name = info[0];
+				ws.id = Integer.parseInt(info[1]);
+				ws.pagerank = Double.parseDouble(info[2]);
+				webs.put(ws.id, ws);
+			}
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void sort() {
@@ -116,8 +164,6 @@ public class PageRank {
 	
 	public void saveInfo() {
 		
-		String pr_filepath = "out/pagerank.txt";
-		String pr_analyze = "out/analyze.txt";
 		DirectoryChecker.dirCheck(pr_filepath);
 		
 		try {
@@ -125,38 +171,14 @@ public class PageRank {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(pr_filepath));
 			for (Entry<Integer, WebSite> entry : webs.entrySet()) {
 				WebSite ws = entry.getValue();
-				bw.write(ws.name + "\t\t" + ws.id + ":" + ws.pagerank + "\n");
+				bw.write(ws.name + "\t" + ws.id + "\t" + ws.pagerank + "\n");
 			}
 			bw.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-//		
-//		Map<Integer, WebSite> sortedWebs = new LinkedHashMap<Integer, WebSite>();
-//		
-//		try {
-//			System.out.println("Saving sorted page rank file.");
-//			// 使用pagerank对网站排序
-//			Comparator<Entry<Integer, WebSite>> byValue = 
-//					(entry1, entry2) -> 
-//					compare(entry1.getValue().pagerank, entry2.getValue().pagerank);
-//
-//			webs.entrySet().stream()
-//				.sorted(byValue.reversed())
-//				.forEach(x -> sortedWebs.put(x.getKey(), x.getValue()));
-//		    
-//		    BufferedWriter bw = new BufferedWriter(new FileWriter(pr_sorted));
-//		    for (Entry<Integer, WebSite> entry : sortedWebs.entrySet()) {
-//		    	WebSite ws = entry.getValue();
-//		    	bw.write(ws.name + "\t\t" + ws.id + ":" + ws.pagerank + "\n");
-//		    }
-//		    bw.close();
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
+
 		try {
 			System.out.println("Saving abstract analyze file.");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(pr_analyze));

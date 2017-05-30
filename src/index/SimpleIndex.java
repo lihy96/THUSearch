@@ -1,7 +1,9 @@
 package index;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import util.FileOperator;
 
 public class SimpleIndex {
 	private String srcDir = null;
+	private String outDir = null;
 	private String desFile = null;
 	private ArrayList<String> formatSupport = null;
 	
@@ -33,6 +36,87 @@ public class SimpleIndex {
 	public Map<Integer, WebSite> webs = new LinkedHashMap<Integer, WebSite>();
 
 	public void simpleIndex() {
+		
+		File df = null;
+		if (desFile != null) {
+			df = new File(desFile); 
+		}
+		
+		if (df == null || !df.exists()) {
+			this.loadFileListByIterator();
+		}
+		else
+			this.loadFileListByHistory();
+
+
+		/**
+		 * calculate page rank for each html file
+		 */
+		File od = new File(outDir + "/pagerank.txt");
+		if (!od.exists()) {
+			this.loadLinkGraph(this.map, this.webs);
+		}
+		PageRank pr = new PageRank(0.15, 20, map, webs, outDir);
+		pr.calPageRank();
+	}
+
+	/**
+	 * total 16665 line
+	 */
+	public static void main(String[] args) {
+		SimpleIndex fpi = new SimpleIndex();
+		String src_dir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
+		String des_file = "forIndex/fileList.txt";
+		ArrayList<String> fs = new ArrayList<String>();
+		fs.add("html"); fs.add("htm"); fs.add("txt"); fs.add("xml");
+		fs.add("doc"); fs.add("docx"); fs.add("pdf");
+		fpi.setParam(src_dir, des_file, "forIndex", fs);
+		fpi.simpleIndex();
+
+		PageRank pr = new PageRank(0.15, 20, fpi.map, fpi.webs, "forIndex");
+		pr.calPageRank();
+		pr.saveInfo();
+	}
+	
+	public Map<String, Integer> getFileList() {
+		return fileList;
+	}
+	
+	public void setParam(String src_dir, ArrayList<String> fs) {
+		setParam(src_dir, null, null, fs);
+	}
+	
+	public void setParam(String src_dir, String des_file, String out_dir, ArrayList<String> fs) {
+		this.srcDir = src_dir;
+		this.outDir = out_dir;
+		this.desFile = des_file;
+		this.formatSupport = fs;
+	}
+	
+	private void loadFileListByHistory() {
+		assert(desFile == null);
+		
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(desFile));
+			String line;
+			while ((line = br.readLine()) != null) {
+				if (line.equals("")) continue;
+				cc ++;
+				if (cc % 100 == 0) {
+					System.out.println("Process " + cc);
+				}
+				int idx = line.trim().indexOf("\t");
+				Integer id = Integer.parseInt(line.trim().substring(0, idx));
+				fileList.put(line.trim().substring(idx+1), id);
+			}
+			br.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadFileListByIterator() {
 		assert(srcDir == null);
 		assert(formatSupport == null);
 		
@@ -52,7 +136,7 @@ public class SimpleIndex {
 				DirectoryChecker.dirCheck(desFile);
 				BufferedWriter bw = new BufferedWriter(new FileWriter(desFile));
 				for (Entry<String, Integer> file : fileList.entrySet()) {
-					bw.write(file.getValue() + " : " + file.getKey() + "\n");
+					bw.write(file.getValue() + "\t" + file.getKey() + "\n");
 				}
 				bw.close();
 			}
@@ -60,40 +144,6 @@ public class SimpleIndex {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		this.loadLinkGraph(this.map, this.webs);
-	}
-
-	/**
-	 * total 16665 line
-	 */
-	public static void main(String[] args) {
-		SimpleIndex fpi = new SimpleIndex();
-		String src_dir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
-		String des_file = "forIndex/fileList.txt";
-		ArrayList<String> fs = new ArrayList<String>();
-		fs.add("html"); fs.add("txt"); fs.add("xml");
-		fs.add("doc"); fs.add("docx"); fs.add("pdf");
-		fpi.setParam(src_dir, des_file, fs);
-		fpi.simpleIndex();
-
-		PageRank pr = new PageRank(0.15, 20, fpi.map, fpi.webs);
-		pr.calPageRank();
-		pr.saveInfo();
-	}
-	
-	public Map<String, Integer> getFileList() {
-		return fileList;
-	}
-	
-	public void setParam(String src_dir, ArrayList<String> fs) {
-		setParam(src_dir, null, fs);
-	}
-	
-	public void setParam(String src_dir, String des_file, ArrayList<String> fs) {
-		this.srcDir = src_dir;
-		this.desFile = des_file;
-		this.formatSupport = fs;
 	}
 	
     private void indexSpecificWebsite(File website) {
@@ -184,7 +234,7 @@ public class SimpleIndex {
         			catch (Exception e) {
         				e.printStackTrace();
         			}
-        			break;
+//        			break;
         		}
     		}
 
