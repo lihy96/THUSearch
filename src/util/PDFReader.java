@@ -27,7 +27,6 @@ public class PDFReader {
 	        pdDoc.close();
 	        // System.out.println(parsedText.replaceAll("[^A-Za-z0-9. ]+", ""));
 	    } catch (Exception e) {
-	        e.printStackTrace();
 	        try {
 	            if (cosDoc != null)
 	                cosDoc.close();

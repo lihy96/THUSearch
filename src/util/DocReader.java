@@ -29,7 +29,7 @@ public class DocReader {
 			}
 			fis.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return content;
 	}

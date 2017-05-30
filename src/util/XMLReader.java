@@ -30,7 +30,7 @@ public class XMLReader {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return content;
 	}
