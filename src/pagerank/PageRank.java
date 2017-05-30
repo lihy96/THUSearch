@@ -68,15 +68,15 @@ public class PageRank {
 			saveInfo(pr_filepath);
 		}
 		
-		File rp = new File(rank_path);
-		if (rp.exists()) {
-			loadWebs(rank_path);
-		}
-		else {
-			MAX_PAGERANK = webs.entrySet().iterator().next().getValue().pagerank;
-			splitToInt();
-			saveInfo(rank_path);
-		}
+//		File rp = new File(rank_path);
+//		if (rp.exists()) {
+//			loadWebs(rank_path);
+//		}
+//		else {
+//			MAX_PAGERANK = webs.entrySet().iterator().next().getValue().pagerank;
+//			splitToInt();
+//			saveInfo(rank_path);
+//		}
 	}
 	
 	private void splitToInt() {

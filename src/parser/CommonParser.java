@@ -10,6 +10,7 @@ import index.THUIndexer;
 public class CommonParser {
 
 	public static void commParser(String title, String content, Document document, float pagerank) {
+		pagerank = 0.0011511079962592142f;
 		Field titleField = new TextField("title", title, Field.Store.YES);
 		titleField.setBoost(pagerank);
 		THUIndexer.averageLength += title.length() / THUIndexer.DIV_NUM;
