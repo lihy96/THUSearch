@@ -9,11 +9,13 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.poi.hwpf.model.FieldsDocumentPart;
 import org.jsoup.Jsoup;
 
 import cn.edu.hfut.dmic.contentextractor.ContentExtractor;
 import index.SimilarWords;
 import index.THUIndexer;
+import sun.security.acl.OwnerImpl;
 
 public class HTMLParser {
 
@@ -33,6 +35,12 @@ public class HTMLParser {
 			String content = "";
 			try {
 				org.jsoup.nodes.Element body = ContentExtractor.getContentElementByDoc(doc);
+				org.jsoup.select.Elements imgs_url = body.select("img");
+				if (imgs_url.size() == 1) {
+					String img = imgs_url.get(0).absUrl("src");
+					Field imgField = new StringField("imgurl", img, Field.Store.YES);
+					document.add(imgField);
+				}
 				content = body.text();
 			} catch (Exception e) {}
 			if (content.equals("")) {

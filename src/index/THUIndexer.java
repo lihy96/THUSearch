@@ -96,13 +96,13 @@ public class THUIndexer {
 		 * index websites for later search
 		 */
 		Map<String, Integer> fileList = si.getFileList();
-//		System.out.println("Index Document : " + fileList.size());
-//		try {
-//			indexer.indexDocuments(fileList, si.webs);
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		System.out.println("Index Document : " + fileList.size());
+		try {
+			indexer.indexDocuments(fileList, si.webs);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		indexer.simWords(fileList);
 	}
@@ -181,6 +181,10 @@ public class THUIndexer {
     }
 	
 	public void simWords(Map<String, Integer> fileList) {
+		String relaPath = outDir + "/relation.txt";
+		File file = new File(relaPath);
+		if (file.exists()) return ;
+		
 		SimilarWords sw = new SimilarWords();
 		int count = 0;
 		IKAnalyzer ikAnalyzer = new IKAnalyzer();
@@ -197,7 +201,7 @@ public class THUIndexer {
 			}
 		}
 		sw.init();
-		sw.save(outDir + "/relation.txt");
+		sw.save(relaPath);
 	}
 
 }
