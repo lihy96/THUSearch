@@ -14,13 +14,48 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <title>搜索结果</title>
     <!-- bootstrap -->
     
+      <link rel="stylesheet" href="css/jquery-ui.css">
+	  <script src="js/jquery-1.12.4.js"></script>
+	  <script src="js/jquery-ui.js"></script>
+	  <script>
+	  $( function() {
+	    function log( message ) {
+	      $( "<div>" ).text( message ).prependTo( "#log" );
+	      $( "#log" ).scrollTop( 0 );
+	    }
+	 
+	    $( "#appendedInputButton" ).autocomplete({
+	      source: function( request, response ) {
+	        $.ajax( {
+	          url: "THUServer",
+	          type: "GET",
+	          dataType: "json",
+	          data: {
+	        	  autocomplete: request.term
+	          },
+	          success: function( data ) {
+	        	  console.log(data)
+	            response( data );
+	          }
+	        } );
+	      },
+	      minLength: 0,
+	      select: function( event, ui ) {
+	        log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+	      }
+	    } );
+	  } );
+	  </script>
+    
+    
+    
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
     <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
     <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
 	    			  	<link rel="stylesheet" href="css/speech-input.css">
 						<link rel="stylesheet" href="css/demo.css">	
-    <script src="js/jquery-1.11.3.min.js"></script>
+    <!--  script src="js/jquery-1.11.3.min.js"></script-->
     <script src="bootstrap/js/bootstrap-typeahead.js"/>
     
 	
@@ -54,24 +89,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	String[] recommendWords = (String[]) request.getAttribute("recommendWords");
 %>
 
-<script>
-	$(document).ready(function($) {
-	   // Workaround for bug in mouse item selection
-	   $.fn.typeahead.Constructor.prototype.blur = function() {
-	      var that = this;
-	      setTimeout(function () { that.hide() }, 250);
-	   };
-	 
-	   $('#appendedInputButton').typeahead({
-	      source: function(query, process) {
-	         return [
-	         <% for (int i = 0; i < autoComplete.length; ++i) { %>
-	         	"<%= autoComplete[i] %>",
-	         <% } %> ""];
-	      }
-	   });
-	})
-</script>
+
 
 
 <div class = "container">
@@ -248,7 +266,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			  	}
 			  	%>
 	  		</table>
-  		</div>>
+  		</div>
 	</div>
 </div>
 
