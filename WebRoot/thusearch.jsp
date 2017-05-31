@@ -45,7 +45,7 @@ System.out.println(basePath);
     		<input name="query" id="appendedInputButton" type="text" style="height:40px" class="speech-input" placeholder="What's up?" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3">
     	</label>
     	<label>
-    		<input class = "btn btn-primary" type="submit" name="Submit" value="Submit" style = "width:110px; height:40px; "/>
+    		<input class = "btn btn-primary" type="submit" name="Submit" value="搜索" style = "width:110px; height:40px; "/>
     	</label>
    	</form>
    	</div>
