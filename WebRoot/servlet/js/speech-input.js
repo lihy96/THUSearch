@@ -152,7 +152,7 @@
 			// Cache current input value which the new transcript will be appended to
 			var endsWithWhitespace = inputEl.value.slice(-1).match(/\s/);
 			prefix = !inputEl.value || endsWithWhitespace ? inputEl.value : inputEl.value + ' ';
-
+			
 			// check if value ends with a sentence
 			isSentence = prefix.trim().slice(-1).match(/[\.\?\!]/);
 

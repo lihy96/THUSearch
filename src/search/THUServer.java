@@ -173,6 +173,7 @@ public class THUServer extends HttpServlet{
 					corrList.add(words.get(i / id));
 				}
 			}
+			System.out.println(tmpList.size());
 			
 			/**
 			 * IKAnalyzer split word package
@@ -237,7 +238,6 @@ public class THUServer extends HttpServlet{
 			autoComplete = new String[htmls.length];
 //			spellCheckWords = new String[htmls.length];
 			
-			// lihy96's temp code for testing
 //			imgPaths[0] = "main2.png";
 //			imgPaths[1] = "bj2.jpeg";
 			autoComplete[0] = "buquan 1";
@@ -246,7 +246,6 @@ public class THUServer extends HttpServlet{
 //			spellCheckWords[0] = "spell1";
 //			spellCheckWords[1] = "spell22";
 			//end of lihy96's code 
-
 			
 			getTagsAndPaths(tags, paths, absContent, imgPaths, htmls, search);
 		}
@@ -327,6 +326,14 @@ public class THUServer extends HttpServlet{
 			absContent[i] = content.substring(0, Math.min(content.length(), snippet));
 			imgurls[i] = img;
 		}
+	}
+	
+	static int cnt = 0;
+	private String[] getbuquan(String s) {
+		String[] ret = new String[10];
+		for (int i = 0; i<5;i++)
+			ret[i] = "buquan " + s + " " + cnt++;
+		return ret;
 	}
 	
 }

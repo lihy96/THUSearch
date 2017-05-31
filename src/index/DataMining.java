@@ -17,6 +17,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.pdfbox.contentstream.operator.state.SetRenderingIntent;
+
 import com.sun.java.swing.plaf.windows.WindowsInternalFrameTitlePane.WindowsPropertyChangeHandler;
 import com.sun.org.apache.xerces.internal.xs.StringList;
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
@@ -205,13 +207,17 @@ public class DataMining {
 	public void load_words(String simPath, String autocomPath) {
 		int id = 0;
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(simPath)));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(simPath), "utf-8"));
+			System.out.println(simPath);
 			String line;
+			String content = "";
 			while ((line = reader.readLine()) != null) {
 				if (line.equals("")) continue;
 				
+				content = line;
 				String[] info = line.split("\t");
 				if (info[1].equals("0")) continue;
+//				if (info[0].equals("清华")) System.out.println("清华搜索到了");
 				if (!s2i.containsKey(info[0])) {
 					s2i.put(info[0], id);
 					i2s.put(id ++, info[0]);
@@ -228,6 +234,7 @@ public class DataMining {
 					relate.get(wordId).add(word2Id);
 				}
 			}
+			System.out.println(content);
 			
 			reader.close();
 		} catch (Exception e) {
@@ -335,9 +342,11 @@ public class DataMining {
 	}
 	
 	public ArrayList<String> find_sim_words(String word, int num) {
+		System.out.println(word);
 		if (!s2i.containsKey(word)) {
 			return new ArrayList<String>();
 		}
+		System.out.println(word);
 		int wordId = s2i.get(word);
 		//System.out.println("##########"+wordId);
 		ArrayList<Integer> relateIdList = relate.get(wordId);

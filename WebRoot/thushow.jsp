@@ -219,7 +219,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</ul>
 		</div>
 	</div> 
-	<div class="span6" >
+	<div class="span6" style="position: fixed">
 		</br>
 		</br>
 		</br>
