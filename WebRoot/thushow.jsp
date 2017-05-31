@@ -97,7 +97,9 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				      		data-items="4" name="query" value="<%=currentQuery%>" 
 				      		id="appendedInputButton" type="text" size="70" 
 				      		style = "width:410px;height:30px" data-items="4"
-				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3"/>
+				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" 
+				      		onblur="style.backgroundColor='#DCDCDC'" data-patience="3"
+				      		lang="zh-Hans"/>
 				      <input type="submit" name="Submit" value="搜索" style="margin-top:0px"
 				      		class = "btn btn-primary" />
 			   		</label>
