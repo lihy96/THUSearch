@@ -42,7 +42,11 @@ System.out.println(basePath);
     	<label>
       		<!--  input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/-->
       		<!--  input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/ -->
-    		<input name="query" id="appendedInputButton" type="text" style="height:40px" class="speech-input" placeholder="What's up?" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3" lang="zh-Hans">
+
+    		<input name="query" id="appendedInputButton" type="text" style="height:40px" 
+    			class="speech-input" placeholder="What's up?" onfocus="style.backgroundColor='#FFFFFF'" 
+    			onblur="style.backgroundColor='#DCDCDC'" data-patience="3" lang="zh-Hans">
+
     	</label>
     	<label>
     		<input class = "btn btn-primary" type="submit" name="Submit" value="搜索" style = "width:110px; height:40px; "/>

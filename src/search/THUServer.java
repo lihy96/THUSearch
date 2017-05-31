@@ -205,14 +205,9 @@ public class THUServer extends HttpServlet{
 			// lihy96's temp code for testing
 			imgPaths[0] = "main2.png";
 			imgPaths[1] = "bj2.jpeg";
-			autoComplete[0] = "buquan 1";
-			autoComplete[1] = "buquan 2";
-			autoComplete[2] = "buquan 3";
-			spellCheckWords[0] = "spell1";
-			spellCheckWords[1] = "spell22";
+			autoComplete = getbuquan(queryString);
 			//end of lihy96's code 
-
-			
+	
 			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}
 		else {
@@ -290,6 +285,14 @@ public class THUServer extends HttpServlet{
 			else
 				absContent[i] = doc.get("content").substring(0, 300) + "...";
 		}
+	}
+	
+	static int cnt = 0;
+	private String[] getbuquan(String s) {
+		String[] ret = new String[10];
+		for (int i = 0; i<5;i++)
+			ret[i] = "buquan " + s + " " + cnt++;
+		return ret;
 	}
 	
 }
