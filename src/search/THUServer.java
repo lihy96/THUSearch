@@ -28,6 +28,7 @@ import org.apache.xmlbeans.impl.xb.xsdschema.Element;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import index.SimilarWords;
+import sun.swing.StringUIClientPropertyKey;
 
 import java.util.*;
 
@@ -205,8 +206,8 @@ public class THUServer extends HttpServlet{
 			spellCheckWords = new String[htmls.length];
 			
 			// lihy96's temp code for testing
-			imgPaths[0] = "main2.png";
-			imgPaths[1] = "bj2.jpeg";
+//			imgPaths[0] = "main2.png";
+//			imgPaths[1] = "bj2.jpeg";
 			autoComplete[0] = "buquan 1";
 			autoComplete[1] = "buquan 2";
 			autoComplete[2] = "buquan 3";
@@ -215,7 +216,7 @@ public class THUServer extends HttpServlet{
 			//end of lihy96's code 
 
 			
-			getTagsAndPaths(tags, paths, absContent, htmls, search);
+			getTagsAndPaths(tags, paths, absContent, imgPaths, htmls, search);
 		}
 		else {
 			System.out.println("Result Null");
@@ -275,7 +276,9 @@ public class THUServer extends HttpServlet{
 		return -1;
 	}
 	
-	private void getTagsAndPaths(String[] tags, String[] paths, String[] absContent, ScoreDoc[] hits, THUSearcher search) {
+	private void getTagsAndPaths(String[] tags, String[] paths, 
+						String[] absContent, String[] imgurls,
+						ScoreDoc[] hits, THUSearcher search) {
 		for (int i = 0; i < hits.length && i < PAGE_RESULT; i++) {
 			Document doc = search.getDoc(hits[i].doc);
 			System.out.println("doc=" + hits[i].doc + " score="
@@ -287,10 +290,11 @@ public class THUServer extends HttpServlet{
 			}
 			paths[i] = absHtmlPath;
 			String content = doc.get("content");
-			if (content.length() < 300)
-				absContent[i] = doc.get("content");
-			else
-				absContent[i] = doc.get("content").substring(0, 300) + "...";
+			String img = doc.get("imgurl");
+			System.out.println(img);
+			int snippet = (img == null) ? 257 : 157;
+			absContent[i] = content.substring(0, Math.min(content.length(), snippet)) + "...";
+			imgurls[i] = img;
 		}
 	}
 	
