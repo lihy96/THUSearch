@@ -184,6 +184,7 @@ public class THUIndexer {
 	public void dataMining(Map<String, Integer> fileList) {
 		String relaPath = outDir + StaticValue.SIM_WORD_PATH;
 		String autocomPath = outDir + StaticValue.AUTO_COM_PATH;
+		String corrPath = outDir + StaticValue.CORRECT_PATH;
 		
 		DataMining sw = new DataMining();
 		int count = 0;
@@ -210,6 +211,12 @@ public class THUIndexer {
 		File acFile = new File(autocomPath);
 		if (!acFile.exists()) {
 			sw.save_autocom_word(autocomPath);
+		}
+		
+		File corFile = new File(corrPath);
+		if (!corFile.exists()) {
+			sw.init_correct_table();
+			sw.save_corr_table(corrPath);
 		}
 	}
 

@@ -145,23 +145,32 @@ public class THUServer extends HttpServlet{
 			System.setOut(out);
 			
 			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
+			Map<Integer, ArrayList<String>> mutiCorrWords = new HashMap<Integer, ArrayList<String>>();
 			System.out.print("ansj result : ");
 			int id = 0;
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
 	//			simWords.addAll(sw.find(word.getName(), 5));
-				mutiSimWords.put(id++, sw.find_sim_words(word.getName(), 5));
+				mutiSimWords.put(id, sw.find_sim_words(word.getName(), 5));
+				mutiCorrWords.put(id++, sw.find_correct_words(word.getName(), 4));
 	//			ScoreDoc[] tmpHits = getHits(word.getName(), page);
 				TopDocs td = search.searchQuery(word.getName(), 100);
 	            addHits(hits, td.scoreDocs, 1.0f);
 			}
 			System.out.println("");
-			ArrayList<String> tmpList = new ArrayList<String>();
+			ArrayList<String> simList = new ArrayList<String>();
 			for (int i = 0; i < 10; ++i) {
 				ArrayList<String> words = mutiSimWords.get(i % id);
 				if (words.size() > (i / id)) {
-					tmpList.add(words.get(i / id));
+					simList.add(words.get(i / id));
+				}
+			}
+			ArrayList<String> corrList = new ArrayList<String>();
+			for (int i = 0; i < 4; ++i) {
+				ArrayList<String> words = mutiCorrWords.get(i % id);
+				if (words.size() > (i / id)) {
+					corrList.add(words.get(i / id));
 				}
 			}
 			
@@ -189,13 +198,14 @@ public class THUServer extends HttpServlet{
 	//			e.printStackTrace();
 	//		}
 			
-	        setRequestAttribute(request, response, hits, tmpList, queryString, page);
+	        setRequestAttribute(request, response, hits, simList, corrList, queryString, page);
 
 		}
 	}
 	
 	private void setRequestAttribute(HttpServletRequest request, HttpServletResponse response,
-					ArrayList<ScoreDoc> hits, ArrayList<String> _simWords, String queryString, int page) {
+				ArrayList<ScoreDoc> hits, ArrayList<String> _simWords, ArrayList<String> _corrList,
+				String queryString, int page) {
 		String[] tags=null;
 		String[] paths=null;
 		String[] absContent=null;
@@ -203,7 +213,7 @@ public class THUServer extends HttpServlet{
 
 		String[] autoComplete=null;
 		String[] recommendWords=_simWords.toArray(new String[_simWords.size()]);
-		String[] spellCheckWords=null;
+		String[] spellCheckWords=_corrList.toArray(new String[_corrList.size()]);
 		
 		if (hits.size() != 0) {
 //			Collections.sort(hits, new ScoreComparator());
@@ -225,7 +235,7 @@ public class THUServer extends HttpServlet{
 			absContent = new String[htmls.length];
 			imgPaths = new String[htmls.length];
 			autoComplete = new String[htmls.length];
-			spellCheckWords = new String[htmls.length];
+//			spellCheckWords = new String[htmls.length];
 			
 			// lihy96's temp code for testing
 //			imgPaths[0] = "main2.png";
@@ -233,8 +243,8 @@ public class THUServer extends HttpServlet{
 			autoComplete[0] = "buquan 1";
 			autoComplete[1] = "buquan 2";
 			autoComplete[2] = "buquan 3";
-			spellCheckWords[0] = "spell1";
-			spellCheckWords[1] = "spell22";
+//			spellCheckWords[0] = "spell1";
+//			spellCheckWords[1] = "spell22";
 			//end of lihy96's code 
 
 			

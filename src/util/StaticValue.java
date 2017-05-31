@@ -17,5 +17,6 @@ public class StaticValue {
 	// data mining
 	public static String SIM_WORD_PATH = "/relation.txt";
 	public static String AUTO_COM_PATH = "/autocom.txt";
+	public static String CORRECT_PATH = "/correct.txt";
 	public static Integer AUTO_COM_THRESHOLD = 200;
 }

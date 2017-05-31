@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.sun.java.swing.plaf.windows.WindowsInternalFrameTitlePane.WindowsPropertyChangeHandler;
+import com.sun.org.apache.xerces.internal.xs.StringList;
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import pagerank.WebSite;
 import util.StaticValue;
@@ -29,12 +31,15 @@ public class DataMining {
 	private HashMap<String, Integer> s2i = new HashMap<String, Integer>();
 	private HashMap<Integer, String> i2s = new HashMap<Integer, String>();
 	private int icnt = 0;
-	private Map<Integer, Integer> icount = new LinkedHashMap<Integer, Integer>();
 	
 	private final double MAX_RECOMMEND_NUM = 8;
 	private final double RELATE_THRESHOLD = 0.10;
+	private final int Q = 2;	
+	private final double ED_RATIO = 0.2;
 	
-	HashMap<Integer, ArrayList<Integer>> relate = new HashMap<Integer, ArrayList<Integer>>();
+	private HashMap<Integer, ArrayList<Integer>> relate = new HashMap<Integer, ArrayList<Integer>>();
+	private Map<Integer, Integer> icount = new LinkedHashMap<Integer, Integer>();
+	HashMap<String, ArrayList<Integer>> correct = new HashMap<String, ArrayList<Integer>>();
 	
 	
 	public void init_sim_words() {
@@ -108,6 +113,26 @@ public class DataMining {
 		}
 		System.out.println("Get relations finish !");
 	}
+	
+	public void save_corr_table(String filePath) {
+		System.out.println("Save correct table : " + filePath);
+		try {
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(filePath));
+			for (Entry<String, ArrayList<Integer>> entry : correct.entrySet()) {
+				String gram = entry.getKey();
+				bWriter.write(gram + "\t");
+				ArrayList<Integer> list = entry.getValue();
+				for (Integer id : list) {
+					bWriter.write(i2s.get(id) + "\t");
+				}
+				bWriter.write("\n");
+			}
+			bWriter.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void save_sim_words(String filePath) {
 		System.out.println("Save similar words : " + filePath);
@@ -159,6 +184,22 @@ public class DataMining {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void init_correct_table() {
+		System.out.println("Build correct inverted index ...");
+		for (Entry<String, Integer> wordwork : s2i.entrySet()) {
+			String word = wordwork.getKey();
+			Integer wordId = wordwork.getValue();
+			for (int i = 0; i + Q <= word.length(); ++i) {
+				String gram = word.substring(i, i + Q);
+				if (!correct.containsKey(gram)) {
+					correct.put(gram, new ArrayList<Integer>());
+				}
+				correct.get(gram).add(wordId);
+			}
+		}
+		System.out.println("Build correct inverted index finish !");
 	}
 	
 	public void load_words(String simPath, String autocomPath) {
@@ -215,6 +256,66 @@ public class DataMining {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+
+		System.out.println("Build correct inverted index ...");
+		for (Entry<Integer, Integer> wordwork : icount.entrySet()) {
+//			String word = wordwork.getKey();
+			Integer wordId = wordwork.getKey();
+			String word = i2s.get(wordId);
+			for (int i = 0; i + Q <= word.length(); ++i) {
+				String gram = word.substring(i, i + Q);
+				if (!correct.containsKey(gram)) {
+					correct.put(gram, new ArrayList<Integer>());
+				}
+				correct.get(gram).add(wordId);
+			}
+		}
+		System.out.println("Build correct inverted index finish !");
+	}
+	
+	public ArrayList<String> find_correct_words(String word, int num) {
+		int ed = (int) Math.ceil(word.length() * ED_RATIO);
+		int t = Math.max((int)Math.ceil(word.length() - Q + 1 - ed * Q), 1);
+		//System.out.print(ed + " " + t + " ");
+		HashMap<Integer, Double> count = new HashMap<Integer, Double>();
+		for (int i = 0; i + Q < word.length(); ++i) {
+			String gram = word.substring(i, i + Q);
+			if (!correct.containsKey(gram))
+				continue;
+			for (int word2Id : correct.get(gram)) {
+				double c = 0;
+				if (count.containsKey(word2Id)) {
+					c = count.get(word2Id);
+				}
+				count.put(word2Id, c + 1);
+			}
+		}
+		ArrayList<Entry<Integer, Double>> similarList = new ArrayList<Entry<Integer, Double>>();
+		for (Entry<Integer, Double> similarwork : count.entrySet()) {
+			int word2Id = similarwork.getKey();
+			double times = similarwork.getValue();
+			if (times < t) continue;
+			String word2 = i2s.get(word2Id);
+			if (editDistance(word, word2, ed) > ed) continue;
+			similarwork.setValue(1.0 * icount.get(word2Id));
+			similarList.add(similarwork);
+		}
+		Collections.sort(similarList, new Comparator<Entry<Integer, Double>>() {
+			public int compare(Entry<Integer, Double> o0, Entry<Integer, Double> o1) {
+				Double d0 = o0.getValue();
+				Double d1 = o1.getValue();
+				return d1.compareTo(d0);
+			}
+		});
+		ArrayList<String> resultList = new ArrayList<String>();
+		for (int i = 0; i < Math.min(num, similarList.size()); ++i) {
+			resultList.add(i2s.get(similarList.get(i).getKey()));
+		}
+//		for (Entry<Integer, Double> similarwork : similarList) {
+//			resultList.add(i2s.get(similarwork.getKey()));
+//		}
+		return resultList;
 	}
 	
 	public ArrayList<String> find_autocom_words(String word, int num) {
@@ -275,5 +376,32 @@ public class DataMining {
 		Integer cc = docHash.get(wordId);
 		cc = (cc == null) ? 0 : cc;
 		docHash.put(wordId, ++cc);
+	}
+	
+	private int editDistance(String a, String b, int ed) {
+		if (Math.abs(a.length() - b.length()) > ed) return ed + 1;
+		int f[][] = new int[a.length() + 1][b.length() + 1];
+		for (int i = 0; i <= a.length(); ++i)
+			for (int j = 0; j <= b.length(); ++j)
+				f[i][j] = ed + 1;
+		f[0][0] = 0;
+		for (int i = 0; i <= a.length(); ++i) {
+			int js = Math.max(0, i - ed);
+			int jt = Math.min(b.length(), i + ed);
+			for (int j = js; j <= jt; ++j) {
+				if (f[i][j] + Math.abs(i - j) > ed) continue;
+				if (i < a.length() && j < b.length()) {
+					int d = (a.charAt(i) == b.charAt(j)) ? 0 : 1;
+					f[i + 1][j + 1] = Math.min(f[i + 1][j + 1], f[i][j] + d);
+				}
+				if (i < a.length()) {
+					f[i + 1][j] = Math.min(f[i + 1][j], f[i][j] + 1);
+				}
+				if (j < b.length()) {
+					f[i][j + 1] = Math.min(f[i][j + 1], f[i][j] + 1);
+				}
+			}
+		}
+		return f[a.length()][b.length()];
 	}
 }
