@@ -18,7 +18,6 @@ System.out.println(basePath);
 	<!-- bootstrap -->
     <link href="servlet/bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link href="servlet/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
-
     <!-- global font styles -->
     <style type="text/css">
         body,a,p,input,button{font-family:Arial,Verdana,"Microsoft YaHei",Georgia,Sans-serif}
@@ -28,24 +27,29 @@ System.out.println(basePath);
     </style>
 </head>
 <body background="servlet/bj2.jpeg">
+<link rel="stylesheet" href="servlet/css/speech-input.css">
+<link rel="stylesheet" href="servlet/css/demo.css">	
 	<center>
 	<!-- position of title -->
 	<div style="height:70px;margin-top:170px" > </div>
   	<div style="height:102px">
   	<!-- icon and title -->
   	<h1 class="text-warning"><img src="servlet/main2.png" class="img-rounded" style="height:55px; width:55px; ">
-  	<font size="6" color="#CD8500"> Tsinghua</font>
-  	<font size="6" color="#CD6839">Search</font>
+  	<font size="6" color="#CD8500">iSearch</font>
+  	<font size="6" color="#CD6839">爱上搜索</font>
   	</h1>
   	<form id="form1" name="form1" method="get" action="servlet/THUServer" class="form-search" style="margin-top:20px">
     	<label>
-      		<input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/>
+      		<!--  input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/-->
+      		<!--  input name="query" type="text" size="50" id="appendedInputButton" style = "width:500px; height:40px"/ -->
+    		<input name="query" id="appendedInputButton" type="text" style="height:40px" class="speech-input" placeholder="What's up?" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3">
     	</label>
     	<label>
-    		<input class = "btn btn-primary" type="submit" name="Submit" value="搜索" style = "width:110px; height:40px; "/>
+    		<input class = "btn btn-primary" type="submit" name="Submit" value="Submit" style = "width:110px; height:40px; "/>
     	</label>
    	</form>
    	</div>
    </center>
+<script src="servlet/js/speech-input.js"></script>
 </body>
 </html>
