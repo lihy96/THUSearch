@@ -39,10 +39,12 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	          }
 	        } );
 	      },
+	      position: {collision:"flip"},
 	      minLength: 0,
 	      select: function( event, ui ) {
 	        log( "Selected: " + ui.item.value + " aka " + ui.item.id );
 	      }
+	      
 	    } );
 	  } );
 	  </script>
