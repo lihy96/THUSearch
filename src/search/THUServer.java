@@ -185,6 +185,7 @@ public class THUServer extends HttpServlet{
 		String[] imgPaths = null;
 		String[] autoComplete=null;
 		String[] recommendWords=null;
+		String[] spellCheckWords=null;
 		
 		if (hits.size() != 0) {
 			Collections.sort(hits, new ScoreComparator());
@@ -198,6 +199,7 @@ public class THUServer extends HttpServlet{
 			imgPaths = new String[htmls.length];
 			autoComplete = new String[htmls.length];
 			recommendWords = new String[htmls.length];
+			spellCheckWords = new String[htmls.length];
 			
 			// lihy96's temp code for testing
 			imgPaths[0] = "main2.png";
@@ -208,6 +210,8 @@ public class THUServer extends HttpServlet{
 			recommendWords[0] = "推荐1";
 			recommendWords[1] = "tuijian 2";
 			recommendWords[2] = "tuijian 3";
+			spellCheckWords[0] = "spell1";
+			spellCheckWords[1] = "spell22";
 			//end of lihy96's code 
 
 			
@@ -226,6 +230,7 @@ public class THUServer extends HttpServlet{
 			request.setAttribute("autoComplete", autoComplete);
 			request.setAttribute("absContent", absContent);
 			request.setAttribute("recommendWords", recommendWords);
+			request.setAttribute("spellCheckWords", spellCheckWords);
 			request.getRequestDispatcher("/thushow.jsp").forward(request,
 					response);
 		}

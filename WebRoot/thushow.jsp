@@ -116,8 +116,20 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  	String[] htmlTags=(String[]) request.getAttribute("htmlTags");
 		  	String[] htmlPaths=(String[]) request.getAttribute("htmlPaths");
 		  	String[] absContent=(String[]) request.getAttribute("absContent");
-
 		  	String[] imgPaths=(String[]) request.getAttribute("imgPaths");
+		  	String[] spellCheckWords = (String[]) request.getAttribute("spellCheckWords");
+		  	
+			if(spellCheckWords!=null && spellCheckWords.length>0){
+		  		%><tr><td>你要找的是不是： <%
+		  		for(int i=0; i < Math.min(spellCheckWords.length, 3); i++){
+		  			if (spellCheckWords[i] != null && spellCheckWords[i].equals(currentQuery)) continue;
+			  		%><a class="text-info" href="/THUSearch/servlet/THUServer?query=<%= spellCheckWords[i] %>&Submit=Submit">
+			  			<font size="3" color="#1E90FF"> <%= spellCheckWords[i] %></font>
+			  		</a>&nbsp; <%
+			  	}
+		  		%></td></tr> <%
+	  		}
+		  	
 		  	if(htmlTags!=null && htmlTags.length>0){
 		  		for(int i=0;i<htmlTags.length;i++){%>
 	  		<p>
@@ -205,12 +217,15 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</br>
 		</br>
 		</br>
-		<table style="border-left: medium inset #E0E0E0; border-top: hidden" class="table">
+		<table style="margin-left:100px; border-left: medium inset #E0E0E0; border-top: hidden" class="table">
 			<%
 		  	if(recommendWords!=null && recommendWords.length>0){
 		  		%><tr><td> <h4 class = "text-success" >相关搜索：</h4>
 		  				 <%
-					  	for(int i=0; i < recommendWords.length;i++){ %>
+					  	for(int i=0; i < recommendWords.length;i++){ 
+					  	
+					  		if (recommendWords[i] == null) continue;
+					  			%>
 					  		<a class = "text-warning" href="/THUSearch/servlet/THUServer?query=<%= recommendWords[i] %>&Submit=Submit">
 					  		<font size="3" color="#1E90FF"><%= recommendWords[i] %></font>
 					  		</a>
