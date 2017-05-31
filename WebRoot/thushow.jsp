@@ -15,8 +15,15 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <!-- bootstrap -->
     
       <link rel="stylesheet" href="css/jquery-ui.css">
+       <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+	    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	    <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
+	  	<link rel="stylesheet" href="css/speech-input.css">
+		<link rel="stylesheet" href="css/demo.css">	
 	  <script src="js/jquery-1.12.4.js"></script>
 	  <script src="js/jquery-ui.js"></script>
+	   <script src="bootstrap/js/bootstrap-typeahead.js"></script>
 	  <script>
 	  $( function() {
 	    function log( message ) {
@@ -39,7 +46,13 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	          }
 	        } );
 	      },
-	      position: {collision:"flip"},
+	      appendTo: "#results",
+	      open: function() {
+				console.log("open");
+		        $(this).autocomplete('widget').css('z-index', 100000);
+		        return false;
+
+	      },
 	      minLength: 0,
 	      select: function( event, ui ) {
 	        log( "Selected: " + ui.item.value + " aka " + ui.item.id );
@@ -49,23 +62,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	  } );
 	  </script>
     
-    
-    
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
-    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
-    <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
-	    			  	<link rel="stylesheet" href="css/speech-input.css">
-						<link rel="stylesheet" href="css/demo.css">	
-    <!--  script src="js/jquery-1.11.3.min.js"></script-->
-    <script src="bootstrap/js/bootstrap-typeahead.js"/>
-    
-	
-    <!--  link rel="stylesheet" type="text/css" href="css/floating-scroll.css"/>
-    <script src="js/jquery.sticky-div.js"></script>
-    <script src="js/jquery.floating-scroll.js"></script> -->
 
-    <script src="bootstrap/js/bootstrap-typeahead.js"></script>
     <!-- global font styles -->
     <style type="text/css">
         body,a,p,input,button{font-family:Arial,Verdana,"Microsoft YaHei",Georgia,Sans-serif}
@@ -120,8 +117,10 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" 
 				      		onblur="style.backgroundColor='#DCDCDC'" data-patience="3"
 				      		lang="zh-Hans"/>
+	
 				      <input type="submit" name="Submit" value="搜索" style="margin-top:0px"
 				      		class = "btn btn-primary" />
+				      		
 			   		</label>
 			  	</form>
 			  </div>
