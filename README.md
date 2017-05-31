@@ -1,11 +1,14 @@
 # THUSearch
 
+
 ## 项目说明
 
-本项目旨在搭建一个搜索校内站内的搜索引擎，使用java语言编写，
-调试环境为Eclipse,Ubuntu16.04。
+	本项目旨在搭建一个搜索校内站内的搜索引擎，使用java语言编写，
+	调试环境为Eclipse,Ubuntu16.04。
+
 
 ## 项目准备
+
 
 #### 需要安装maven工具,下载依赖包
 
@@ -13,6 +16,7 @@
 	$ mvn package
 	$ mvn dependency:copy-dependencies
 	会在项目目录下创建一个target/文件夹，依赖包存储在target/dependency中
+
 
 #### Eclipse 说明：
 
@@ -24,12 +28,17 @@
 6. Servers栏目 >> Tomcat... >> Add and Remove... >> THUSearch
 7. 切换到你的当前分支
 
+
 ## 项目运行
 
 1. 使用Eclipse运行
+
 	Eclipse内置Tomcat运行，将target/dependency/目录下的所有jar包导入工程
+	
 2. 将打包好的thusearch.war文件放置在tomcat根目录下
+
 	TODO : 尚未测试
+
 
 ## Feature
 
@@ -43,7 +52,9 @@
 	关键词更正
 	相似单词
 	自动补全
-	图片提取
+	图片提取、
+	语音搜索
+
 
 ## Good case
 
@@ -51,10 +62,9 @@
 	社会主意，tinghua		关键词更正
 	师资队伍				图片提取
 	
-​	
 
 ## 开发人员
 
-李昊阳 前端
-王龙涛 后端
+李昊阳 前端 
+王龙涛 后端 
 
