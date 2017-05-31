@@ -50,7 +50,28 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <%
 	String currentQuery=(String) request.getAttribute("currentQuery");
 	int currentPage=(Integer) request.getAttribute("currentPage");
+	String[] autoComplete = (String[]) request.getAttribute("autoComplete");
+	String[] recommendWords = (String[]) request.getAttribute("recommendWords");
 %>
+
+<script>
+	$(document).ready(function($) {
+	   // Workaround for bug in mouse item selection
+	   $.fn.typeahead.Constructor.prototype.blur = function() {
+	      var that = this;
+	      setTimeout(function () { that.hide() }, 250);
+	   };
+	 
+	   $('#appendedInputButton').typeahead({
+	      source: function(query, process) {
+	         return [
+	         <% for (int i = 0; i < autoComplete.length; ++i) { %>
+	         	"<%= autoComplete[i] %>",
+	         <% } %> ""];
+	      }
+	   });
+	})
+</script>
 
 
 <div class = "container">
@@ -77,7 +98,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				      		id="appendedInputButton" type="text" size="70" 
 				      		style = "width:410px;height:30px" data-items="4"
 				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" onblur="style.backgroundColor='#DCDCDC'" data-patience="3"/>
-				      <input type="submit" name="Submit" value="Submit" style="margin-top:0px"
+				      <input type="submit" name="Submit" value="搜索" style="margin-top:0px"
 				      		class = "btn btn-primary" />
 			   		</label>
 			  	</form>
@@ -95,8 +116,26 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  	String[] htmlTags=(String[]) request.getAttribute("htmlTags");
 		  	String[] htmlPaths=(String[]) request.getAttribute("htmlPaths");
 		  	String[] absContent=(String[]) request.getAttribute("absContent");
-
 		  	String[] imgPaths=(String[]) request.getAttribute("imgPaths");
+		  	String[] spellCheckWords = (String[]) request.getAttribute("spellCheckWords");
+		  	
+			if(spellCheckWords!=null && spellCheckWords.length>0){
+		  		%><tr><td>
+		  		
+		  		
+		  		<img src="idea64.png" class="img-rounded" style="height:24px; width:24px; ">
+		  		<font size="3" color="#CD8500">你要找的是不是： </font>
+		  		
+		  		<%
+		  		for(int i=0; i < Math.min(spellCheckWords.length, 3); i++){
+		  			if (spellCheckWords[i] != null && spellCheckWords[i].equals(currentQuery)) continue;
+			  		%><a class="text-info" href="/THUSearch/servlet/THUServer?query=<%= spellCheckWords[i] %>&Submit=Submit">
+			  			<font size="3" color="#1E90FF"> <%= spellCheckWords[i] %></font>
+			  		</a>&nbsp; <%
+			  	}
+		  		%></td></tr> <%
+	  		}
+		  	
 		  	if(htmlTags!=null && htmlTags.length>0){
 		  		for(int i=0;i<htmlTags.length;i++){%>
 	  		<p>
@@ -160,25 +199,53 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	  	<%}else{ %>
 	  		<p><tr><h3>no such result</h3></tr></p>
 	  	<%}; %>
-	  </Table>
-  	<div class = "pagination">
-	  	<ul>
-			<%if(currentPage>1){ %>
-				<li><a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage-1%>">上一页</a></li>
-			<%}; %>
-			<%for (int i=Math.max(1,currentPage-5);i<currentPage;i++){%>
-				<li><a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a></a></li>
-			<%}; %>
-			<!-- <strong><%=currentPage%></strong> -->
-			    <li class="disabled"><a href = ""><%=currentPage%></a></li>
-			<%for (int i=currentPage+1;i<=currentPage+5;i++){ %>
-				<li><a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a></li>
-			<%}; %>
-			    <li><a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage+1%>">下一页</a></li>
-		</ul>
-	</div>
-	<div class="span6"></div>
+	  	</Table>
+	  	<div class = "pagination">
+		  	<ul>
+				<%if(currentPage>1){ %>
+					<li><a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage-1%>">上一页</a></li>
+				<%}; %>
+				<%for (int i=Math.max(1,currentPage-5);i<currentPage;i++){%>
+					<li><a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a></a></li>
+				<%}; %>
+				<!-- <strong><%=currentPage%></strong> -->
+				    <li class="disabled"><a href = ""><%=currentPage%></a></li>
+				<%for (int i=currentPage+1;i<=currentPage+5;i++){ %>
+					<li><a href="THUServer?query=<%=currentQuery%>&page=<%=i%>"><%=i%></a></li>
+				<%}; %>
+				    <li><a href="THUServer?query=<%=currentQuery%>&page=<%=currentPage+1%>">下一页</a></li>
+			</ul>
+		</div>
 	</div> 
+	<div class="span6" >
+		</br>
+		</br>
+		</br>
+		</br>
+		</br>
+		<table style="margin-left:100px; border-left: medium inset #E0E0E0; border-top: hidden" class="table">
+			<%
+		  	if(recommendWords!=null && recommendWords.length>0){
+		  		%><tr><td> 
+		  			
+		  			<h4 class = "text-success" ><img src="network.png" class="img-rounded" style="height:24px; width:24px; "></img>
+		  				<font  color="#CD8500">相关搜索：</font></h4>
+		  				</br>
+		  				 <%
+					  	for(int i=0; i < recommendWords.length;i++){ 
+					  	
+					  		if (recommendWords[i] == null) continue;
+					  			%>
+					  		<a class = "text-warning" href="/THUSearch/servlet/THUServer?query=<%= recommendWords[i] %>&Submit=Submit">
+					  		<font size="3" color="#1E90FF"><%= recommendWords[i] %></font>
+					  		</a>
+				  			<br/>
+			  			<% }
+		  		%></td></tr> <%
+		  	}
+		  	%>
+  		</table>
+	</div>
 </div>
 
 <script src="js/speech-input.js"></script>
