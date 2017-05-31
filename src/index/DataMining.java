@@ -264,10 +264,9 @@ public class DataMining {
 		
 
 		System.out.println("Build correct inverted index ...");
-		for (Entry<Integer, Integer> wordwork : icount.entrySet()) {
-//			String word = wordwork.getKey();
-			Integer wordId = wordwork.getKey();
-			String word = i2s.get(wordId);
+		for (Entry<String, Integer> entry : s2i.entrySet()) {
+			String word = entry.getKey();
+			Integer wordId = entry.getValue();
 			for (int i = 0; i + Q <= word.length(); ++i) {
 				String gram = word.substring(i, i + Q);
 				if (!correct.containsKey(gram)) {
@@ -276,6 +275,18 @@ public class DataMining {
 				correct.get(gram).add(wordId);
 			}
 		}
+//		for (Entry<Integer, Integer> wordwork : icount.entrySet()) {
+////			String word = wordwork.getKey();
+//			Integer wordId = wordwork.getKey();
+//			String word = i2s.get(wordId);
+//			for (int i = 0; i + Q <= word.length(); ++i) {
+//				String gram = word.substring(i, i + Q);
+//				if (!correct.containsKey(gram)) {
+//					correct.put(gram, new ArrayList<Integer>());
+//				}
+//				correct.get(gram).add(wordId);
+//			}
+//		}
 		System.out.println("Build correct inverted index finish !");
 	}
 	
@@ -303,7 +314,9 @@ public class DataMining {
 			if (times < t) continue;
 			String word2 = i2s.get(word2Id);
 			if (editDistance(word, word2, ed) > ed) continue;
-			similarwork.setValue(1.0 * icount.get(word2Id));
+			int weight = 1;
+			if (icount.containsKey(word2Id)) weight = icount.get(word2Id);
+			similarwork.setValue(1.0 * weight);
 			similarList.add(similarwork);
 		}
 		Collections.sort(similarList, new Comparator<Entry<Integer, Double>>() {
