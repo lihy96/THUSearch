@@ -21,6 +21,7 @@ import pagerank.PageRank;
 import pagerank.WebSite;
 import util.DirectoryChecker;
 import util.FileOperator;
+import util.StaticValue;
 
 public class SimpleIndex {
 	private String srcDir = null;
@@ -52,7 +53,7 @@ public class SimpleIndex {
 		/**
 		 * calculate page rank for each html file
 		 */
-		File od = new File(outDir + "/pagerank.txt");
+		File od = new File(outDir + StaticValue.PR_PATH);
 		if (!od.exists()) {
 			this.loadLinkGraph(this.map, this.webs);
 		}

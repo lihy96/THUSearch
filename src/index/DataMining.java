@@ -4,29 +4,42 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
-public class SimilarWords {
+import org.apache.pdfbox.contentstream.operator.state.SetRenderingIntent;
 
-	private static HashMap<Integer, HashMap<Integer, Integer>> tf = new HashMap<Integer, HashMap<Integer, Integer>>();
-	private static HashMap<Integer, Integer> idf = new HashMap<Integer, Integer>();
-	private static HashMap<String, Integer> s2i = new HashMap<String, Integer>();
-	private static HashMap<Integer, String> i2s = new HashMap<Integer, String>();
-	private static int icnt = 0;
-	private static int pcnt = 0;
+import com.sun.java.swing.plaf.windows.WindowsInternalFrameTitlePane.WindowsPropertyChangeHandler;
+
+import pagerank.WebSite;
+import util.StaticValue;
+
+public class DataMining {
+
+	private HashMap<Integer, HashMap<Integer, Integer>> tf = new HashMap<Integer, HashMap<Integer, Integer>>();
+	private HashMap<Integer, Integer> idf = new HashMap<Integer, Integer>();
+	private HashMap<String, Integer> s2i = new HashMap<String, Integer>();
+	private HashMap<Integer, String> i2s = new HashMap<Integer, String>();
+	private int icnt = 0;
+	private Map<Integer, Integer> icount = new LinkedHashMap<Integer, Integer>();
 	
 	private final double MAX_RECOMMEND_NUM = 8;
-	private final double RELATE_THRESHOLD = 0.05;
+	private final double RELATE_THRESHOLD = 0.10;
 	
 	HashMap<Integer, ArrayList<Integer>> relate = new HashMap<Integer, ArrayList<Integer>>();
 	
-	public void init() {
+	
+	public void init_sim_words() {
 		System.out.println("Build inverted index ...");
 		HashMap<Integer, ArrayList<Integer>> invertedIndex = new HashMap<Integer, ArrayList<Integer>>();
 		for (Entry<Integer, HashMap<Integer, Integer>> pagework : tf.entrySet()) {
@@ -73,6 +86,7 @@ public class SimilarWords {
 			for (Entry<Integer, Double> relatework : relateMap.entrySet()) {
 				int word2Id = relatework.getKey();
 				double r = relatework.getValue();
+				if (r < 3 || r > 200) continue;
 				relatework.setValue(r / Math.sqrt(idf.get(word2Id)));
 				relateArray.add(relatework);  
 			}   
@@ -96,32 +110,19 @@ public class SimilarWords {
 		}
 		System.out.println("Get relations finish !");
 	}
-	
-	public ArrayList<String> find(String word, int num) {
-		if (!s2i.containsKey(word)) {
-			return new ArrayList<String>();
-		}
-		int wordId = s2i.get(word);
-		//System.out.println("##########"+wordId);
-		ArrayList<Integer> relateIdList = relate.get(wordId);
-		ArrayList<String> relateList = new ArrayList<String>();
-		for (int i = 0; i < Math.min(num, relateIdList.size()); ++i) {
-			relateList.add(i2s.get(relateIdList.get(i)));
-		}
-		return relateList;
-	}
 
-	public void save(String filePath) {
+	public void save_sim_words(String filePath) {
 		System.out.println("Save similar words : " + filePath);
 		try {
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath)));
 			for (Entry<Integer, ArrayList<Integer>> relatework : relate.entrySet()) {
 				String word = i2s.get(relatework.getKey());
 				ArrayList<Integer> relateIdList = relatework.getValue();
-				writer.write(word + " ");
-				writer.write(relateIdList.size() + " ");
+				if (relateIdList.size() == 0) continue;
+				writer.write(word + "\t");
+				writer.write(relateIdList.size() + "\t");
 				for (Integer word2Id : relateIdList) {
-					writer.write(i2s.get(word2Id) + " ");
+					writer.write(i2s.get(word2Id) + "\t");
 				}
 				writer.write("\n");
 				writer.flush();
@@ -132,15 +133,50 @@ public class SimilarWords {
 		}
 	}
 
-	public void load(String filePath) {
+	public void save_autocom_word(String filePath) {
+		System.out.println("Build autocompleted word table.");
+		Map<Integer, Integer> sortedICount = new LinkedHashMap<Integer, Integer>();
+
+		Comparator<Entry<Integer, Integer>> byValue = 
+				(entry1, entry2) -> 
+				entry1.getValue().compareTo(entry2.getValue());
+
+		icount.entrySet().stream()
+			.sorted(byValue.reversed())
+			.forEach(x -> sortedICount.put(x.getKey(), x.getValue()));
+		
+		icount.clear();
+		icount.putAll(sortedICount);
+		
+		System.out.println("Save auto completed word table.");
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+			BufferedWriter bWriter = new BufferedWriter(new FileWriter(filePath));
+			for (Entry<Integer, Integer> entry : icount.entrySet()) {
+				String word = i2s.get(entry.getKey());
+				bWriter.write(word + "\t");
+				bWriter.write(entry.getValue() + "\n");
+			}
+			bWriter.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void load_words(String simPath, String autocomPath) {
+		int id = 0;
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(simPath), "utf-8"));
+			System.out.println(simPath);
 			String line;
-			int id = 0;
+			String content = "";
 			while ((line = reader.readLine()) != null) {
 				if (line.equals("")) continue;
 				
+				content = line;
 				String[] info = line.split("\t");
+				if (info[1].equals("0")) continue;
+//				if (info[0].equals("清华")) System.out.println("清华搜索到了");
 				if (!s2i.containsKey(info[0])) {
 					s2i.put(info[0], id);
 					i2s.put(id ++, info[0]);
@@ -157,32 +193,93 @@ public class SimilarWords {
 					relate.get(wordId).add(word2Id);
 				}
 			}
+			System.out.println(content);
 			
 			reader.close();
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
+
+		try {
+			BufferedReader bReader = new BufferedReader(new FileReader(autocomPath));
+			String line;
+			while((line = bReader.readLine()) != null) {
+				if (line.equals("")) continue;
+				
+				String[] info = line.trim().split("\t");
+				int weight = Integer.parseInt(info[1]);
+				if (weight < StaticValue.AUTO_COM_THRESHOLD) break;
+				if (!s2i.containsKey(info[0])) {
+					s2i.put(info[0], id);
+					i2s.put(id ++, info[0]);
+				}
+				int wordId = s2i.get(info[0]);
+				icount.put(wordId, weight);
+			}
+			bReader.close();
+			System.out.println("Auto complete words number : " + icount.size());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public ArrayList<String> find_autocom_words(String word, int num) {
+		if (word.equals("")) return new ArrayList<String>();
+		ArrayList<String> completeList = new ArrayList<String>();
+		Iterator<Integer> iterator = icount.keySet().iterator();
+		for (int i = 0; i < num; ++i) {
+			while (iterator.hasNext()) {
+				String word2 = i2s.get(iterator.next());
+				if (word2.startsWith(word)) {
+					completeList.add(word2);
+					break;
+				}
+			}
+		}
+		return completeList;
+	}
+	
+	public ArrayList<String> find_sim_words(String word, int num) {
+		System.out.println(word);
+		if (!s2i.containsKey(word)) {
+			return new ArrayList<String>();
+		}
+		System.out.println(word);
+		int wordId = s2i.get(word);
+		//System.out.println("##########"+wordId);
+		ArrayList<Integer> relateIdList = relate.get(wordId);
+		ArrayList<String> relateList = new ArrayList<String>();
+		for (int i = 0; i < Math.min(num, relateIdList.size()); ++i) {
+			relateList.add(i2s.get(relateIdList.get(i)));
+		}
+		return relateList;
 	}
 	
 	
 	public void add(String word, int docId) {
+		if (word.length() < 2) return ;
 		for (int i = 0; i < word.length(); ++i) {
 			char c = word.charAt(i);
 			if (c >= '0' && c <= '9') return;
 		}
+		if (word.endsWith(".")) word = word.substring(0, word.length()-1);
+		
 		int wordId;
 		if (s2i.containsKey(word)) {
 			wordId = s2i.get(word);
 		} else {
 			s2i.put(word, icnt);
 			i2s.put(icnt, word);
-			idf.put(icnt, 0);
+//			idf.put(icnt, 0);
+			icount.put(icnt, 0);
 			wordId = icnt++;
 		}
 		if (!tf.containsKey(docId)) {
 			tf.put(docId, new HashMap<Integer, Integer>());
 		}
 //		idf.put(wordId, idf.get(wordId) + 1);
+		icount.put(wordId, icount.get(wordId) + 1);
 		HashMap<Integer, Integer> docHash = tf.get(docId);
 		Integer cc = docHash.get(wordId);
 		cc = (cc == null) ? 0 : cc;

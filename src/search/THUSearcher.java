@@ -29,8 +29,6 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import com.sun.xml.internal.ws.encoding.SwACodec;
 
-import index.SimilarWords;
-
 
 public class THUSearcher {
 	private IndexReader reader;

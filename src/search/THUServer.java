@@ -25,9 +25,12 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.util.Version;
 import org.apache.xmlbeans.impl.xb.xsdschema.Element;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
-import index.SimilarWords;
+import index.DataMining;
+import sun.swing.StringUIClientPropertyKey;
 
 import java.util.*;
 
@@ -40,14 +43,43 @@ public class THUServer extends HttpServlet{
 	public static final int PAGE_RESULT=10;
 	public static final String indexDir="forIndex";
 	public static final String htmlDir="http://";
-	private SimilarWords sw = new SimilarWords();
+	private DataMining sw = new DataMining();
 	private THUSearcher search=null;
 	public THUServer(){
 		super();
 		search=new THUSearcher(new String(indexDir+"/index"));
 		search.loadGlobals(new String(indexDir+"/global.txt"));
-		sw.load(indexDir+"/relation.txt");
+		sw.load_words(indexDir+"/relation.txt", indexDir+"/autocom.txt");
 	}
+	
+//	public class AutoComplete extends HttpServlet {
+//		public void doGet(HttpServletRequest request, HttpServletResponse response) 
+//				throws ServletException, IOException{
+//			response.setContentType("text/html;charset=utf-8");
+//			request.setCharacterEncoding("utf-8");
+//			String word=request.getParameter("query");
+//			ArrayList<String> completeWords = sw.find_autocom_words(word, 5);
+//			String[] recommendWords = completeWords.toArray(new String[completeWords.size()]);
+//			
+//			try {
+//				request.setAttribute("words",recommendWords);
+//				PrintWriter out = response.getWriter();
+//				for (String string : recommendWords) {
+//					out.println(string);
+//				}
+////				request.getRequestDispatcher("/thushow.jsp").forward(request,
+////						response);
+//			}
+//			catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		public void doPost(HttpServletRequest request, HttpServletResponse response)
+//				throws ServletException, IOException {
+//			this.doGet(request, response);
+//		}
+//	}
 	
 	public ScoreDoc[] showList(ScoreDoc[] results,int page){
 		if(results==null || results.length<(page-1)*PAGE_RESULT){
@@ -64,19 +96,38 @@ public class THUServer extends HttpServlet{
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		System.out.println("**************Search Begin*****************");
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
+		
+		String autoComWord=request.getParameter("autocomplete");
+		if (autoComWord != null) {
+			PrintWriter out = response.getWriter();
+			ArrayList<String> completeWords = sw.find_autocom_words(autoComWord, 5);
+			JSONArray jsonArray = new JSONArray();
+			String[] recommendWords = completeWords.toArray(new String[completeWords.size()]);
+			for (String string : recommendWords) {
+				jsonArray.put(string);
+			}
+			out.println(jsonArray.toString());
+			return ;
+		}
+				
+		queryWebSearch(request, response);
+	}
+	
+	private void queryWebSearch(HttpServletRequest request, HttpServletResponse response) 
+			throws ServletException, IOException {
+		System.out.println("**************Search Begin*****************");
 		String queryString=request.getParameter("query");
 		String pageString=request.getParameter("page");
+
 		int page=1;
 		if(pageString!=null){
 			page=Integer.parseInt(pageString);
 		}
 		if(queryString==null){
 			System.out.println("null query");
-			//request.getRequestDispatcher("/Image.jsp").forward(request, response);
-		}else{			
+		}else{	
 			//分词
 			// IKAnalyzer ika = new IKAnalyzer(false);
 			ArrayList<ScoreDoc> hits = new ArrayList<ScoreDoc>();
@@ -93,84 +144,55 @@ public class THUServer extends HttpServlet{
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
 			System.setOut(out);
 			
-			ArrayList<String> simWords = new ArrayList<String>();
+			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
 			System.out.print("ansj result : ");
+			int id = 0;
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
-				simWords.addAll(sw.find(word.getName(), 5));
-//				ScoreDoc[] tmpHits = getHits(word.getName(), page);
+	//			simWords.addAll(sw.find(word.getName(), 5));
+				mutiSimWords.put(id++, sw.find_sim_words(word.getName(), 5));
+	//			ScoreDoc[] tmpHits = getHits(word.getName(), page);
 				TopDocs td = search.searchQuery(word.getName(), 100);
 	            addHits(hits, td.scoreDocs, 1.0f);
 			}
 			System.out.println("");
+			ArrayList<String> tmpList = new ArrayList<String>();
+			for (int i = 0; i < 10; ++i) {
+				ArrayList<String> words = mutiSimWords.get(i % id);
+				if (words.size() > (i / id)) {
+					tmpList.add(words.get(i / id));
+				}
+			}
+			System.out.println(tmpList.size());
 			
 			/**
 			 * IKAnalyzer split word package
 			 */
-//			QueryParser queryParser = new QueryParser(Version.LUCENE_35, "content", new IKAnalyzer(false));
-//			Query queryClass;
-//			try {
-//				queryClass = queryParser.parse(queryString);
-//				// System.out.println(queryClass);
-//				Set<Term> terms = new HashSet<Term>();
-//				queryClass.extractTerms(terms);
-//				System.out.print("IKAnalyzer result : ");
-//				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
-//					Term term = iter.next();
-//					String query = term.text().trim();
-//					System.out.print("<" + query + ">");
-//					ScoreDoc[] tmpHits = getHits(query, page);
-//		            addHits(hits, tmpHits, 1);
-//				}
-//				System.out.println("");
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-	        
-			/*for (int i = 0; i < hits.size(); ++i) {
-				Document doc = search.getDoc(hits.get(i).doc);
-				System.out.println("doc=" + hits.get(i).doc + " score="
-					+ hits.get(i).score + " picPath= "
-					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));
-			}*/
+	//		QueryParser queryParser = new QueryParser(Version.LUCENE_35, "content", new IKAnalyzer(false));
+	//		Query queryClass;
+	//		try {
+	//			queryClass = queryParser.parse(queryString);
+	//			// System.out.println(queryClass);
+	//			Set<Term> terms = new HashSet<Term>();
+	//			queryClass.extractTerms(terms);
+	//			System.out.print("IKAnalyzer result : ");
+	//			for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
+	//				Term term = iter.next();
+	//				String query = term.text().trim();
+	//				System.out.print("<" + query + ">");
+	//				ScoreDoc[] tmpHits = getHits(query, page);
+	//	            addHits(hits, tmpHits, 1);
+	//			}
+	//			System.out.println("");
+	//		} catch (ParseException e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
 			
-	        setRequestAttribute(request, response, hits, simWords, queryString, page);
-			
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private ScoreDoc[] getHits(String queryString, int page) {
-		ScoreDoc[] hits = null;
+	        setRequestAttribute(request, response, hits, tmpList, queryString, page);
 
-		ArrayList<ScoreDoc> moreHits = new ArrayList<ScoreDoc>();
-		TopDocs linkRes = search.searchQuery(queryString, "link", 100);
-		if (linkRes != null) {
-			addHits(moreHits, linkRes.scoreDocs, 1.0f);
 		}
-		TopDocs contentRes = search.searchQuery(queryString, "content", 100);
-		if (contentRes != null) {
-			addHits(moreHits, contentRes.scoreDocs, 5.0f);
-		}
-		TopDocs keywordsRes = search.searchQuery(queryString, "keywords", 100);
-		if (keywordsRes != null) {
-			addHits(moreHits, keywordsRes.scoreDocs, 10.0f);
-		}
-		TopDocs titleRes = search.searchQuery(queryString, "title", 100);
-		if (titleRes != null) {
-			addHits(moreHits, titleRes.scoreDocs, 100.0f);
-		}
-		
-		if (moreHits.size() != 0) {  
-			hits = moreHits.toArray(new ScoreDoc[moreHits.size()]);
-		}
-		else {
-			System.out.println("relative search null");
-		}
-		
-		return hits;
 	}
 	
 	private void setRequestAttribute(HttpServletRequest request, HttpServletResponse response,
@@ -179,18 +201,22 @@ public class THUServer extends HttpServlet{
 		String[] paths=null;
 		String[] absContent=null;
 		String[] imgPaths = null;
-//		String[] simWords = null;
-//		simWords = _simWords.toArray(new String[_simWords.size()]);
-//		for (String simword : simWords)
-//			System.out.print(simword + ", ");
-//		System.out.println("");
 
 		String[] autoComplete=null;
 		String[] recommendWords=_simWords.toArray(new String[_simWords.size()]);
 		String[] spellCheckWords=null;
 		
 		if (hits.size() != 0) {
-			Collections.sort(hits, new ScoreComparator());
+//			Collections.sort(hits, new ScoreComparator());
+			Collections.sort(hits, new Comparator<ScoreDoc>() {
+				public int compare(ScoreDoc s1, ScoreDoc s2) {
+					if (s1.score > s2.score) 
+						return -1;
+					else if (s1.score < s2.score)
+						return 1;
+					return 0;
+			   }
+			});
 			ScoreDoc[] htmls = showList(hits.toArray(new ScoreDoc[hits.size()]), page);
 			if (htmls == null) {
 				htmls = new ScoreDoc[0];
@@ -202,13 +228,16 @@ public class THUServer extends HttpServlet{
 			autoComplete = new String[htmls.length];
 			spellCheckWords = new String[htmls.length];
 			
-			// lihy96's temp code for testing
-			imgPaths[0] = "main2.png";
-			imgPaths[1] = "bj2.jpeg";
-			autoComplete = getbuquan(queryString);
+//			imgPaths[0] = "main2.png";
+//			imgPaths[1] = "bj2.jpeg";
+			autoComplete[0] = "buquan 1";
+			autoComplete[1] = "buquan 2";
+			autoComplete[2] = "buquan 3";
+			spellCheckWords[0] = "spell1";
+			spellCheckWords[1] = "spell22";
 			//end of lihy96's code 
-	
-			getTagsAndPaths(tags, paths, absContent, htmls, search);
+			
+			getTagsAndPaths(tags, paths, absContent, imgPaths, htmls, search);
 		}
 		else {
 			System.out.println("Result Null");
@@ -268,7 +297,9 @@ public class THUServer extends HttpServlet{
 		return -1;
 	}
 	
-	private void getTagsAndPaths(String[] tags, String[] paths, String[] absContent, ScoreDoc[] hits, THUSearcher search) {
+	private void getTagsAndPaths(String[] tags, String[] paths, 
+						String[] absContent, String[] imgurls,
+						ScoreDoc[] hits, THUSearcher search) {
 		for (int i = 0; i < hits.length && i < PAGE_RESULT; i++) {
 			Document doc = search.getDoc(hits[i].doc);
 			System.out.println("doc=" + hits[i].doc + " score="
@@ -280,10 +311,10 @@ public class THUServer extends HttpServlet{
 			}
 			paths[i] = absHtmlPath;
 			String content = doc.get("content");
-			if (content.length() < 300)
-				absContent[i] = doc.get("content");
-			else
-				absContent[i] = doc.get("content").substring(0, 300) + "...";
+			String img = doc.get("imgurl");
+			int snippet = (img == null) ? 257 : 157;
+			absContent[i] = content.substring(0, Math.min(content.length(), snippet));
+			imgurls[i] = img;
 		}
 	}
 	
