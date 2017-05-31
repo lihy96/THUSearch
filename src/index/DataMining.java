@@ -207,14 +207,12 @@ public class DataMining {
 	public void load_words(String simPath, String autocomPath) {
 		int id = 0;
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(simPath), "utf-8"));
-			System.out.println(simPath);
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(new FileInputStream(simPath), "utf-8"));
 			String line;
-			String content = "";
 			while ((line = reader.readLine()) != null) {
 				if (line.equals("")) continue;
 				
-				content = line;
 				String[] info = line.split("\t");
 				if (info[1].equals("0")) continue;
 //				if (info[0].equals("清华")) System.out.println("清华搜索到了");
@@ -234,7 +232,6 @@ public class DataMining {
 					relate.get(wordId).add(word2Id);
 				}
 			}
-			System.out.println(content);
 			
 			reader.close();
 		} catch (Exception e) {
@@ -242,14 +239,15 @@ public class DataMining {
 		}
 
 		try {
-			BufferedReader bReader = new BufferedReader(new FileReader(autocomPath));
+			BufferedReader bReader = new BufferedReader(
+					new InputStreamReader(new FileInputStream(autocomPath), "utf-8"));
 			String line;
 			while((line = bReader.readLine()) != null) {
 				if (line.equals("")) continue;
 				
 				String[] info = line.trim().split("\t");
 				int weight = Integer.parseInt(info[1]);
-				if (weight < StaticValue.AUTO_COM_THRESHOLD) break;
+//				if (weight < StaticValue.AUTO_COM_THRESHOLD) break;
 				if (!s2i.containsKey(info[0])) {
 					s2i.put(info[0], id);
 					i2s.put(id ++, info[0]);
@@ -328,10 +326,12 @@ public class DataMining {
 	public ArrayList<String> find_autocom_words(String word, int num) {
 		if (word.equals("")) return new ArrayList<String>();
 		ArrayList<String> completeList = new ArrayList<String>();
-		Iterator<Integer> iterator = icount.keySet().iterator();
+		Iterator<Entry<Integer, Integer>> iterator = icount.entrySet().iterator();
 		for (int i = 0; i < num; ++i) {
 			while (iterator.hasNext()) {
-				String word2 = i2s.get(iterator.next());
+				Entry<Integer, Integer> entry = iterator.next();
+				if (entry.getValue() < StaticValue.AUTO_COM_THRESHOLD) break;
+				String word2 = i2s.get(entry.getKey());
 				if (word2.startsWith(word)) {
 					completeList.add(word2);
 					break;
@@ -342,11 +342,9 @@ public class DataMining {
 	}
 	
 	public ArrayList<String> find_sim_words(String word, int num) {
-		System.out.println(word);
 		if (!s2i.containsKey(word)) {
 			return new ArrayList<String>();
 		}
-		System.out.println(word);
 		int wordId = s2i.get(word);
 		//System.out.println("##########"+wordId);
 		ArrayList<Integer> relateIdList = relate.get(wordId);

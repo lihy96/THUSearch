@@ -173,7 +173,6 @@ public class THUServer extends HttpServlet{
 					corrList.add(words.get(i / id));
 				}
 			}
-			System.out.println(tmpList.size());
 			
 			/**
 			 * IKAnalyzer split word package
