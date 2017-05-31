@@ -131,7 +131,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <div class = "row-fluid" style="text-align:left">
 	<div class="span1"></div>
-	<div class="span5" style="text-align:left">
+	<div class="span5" style="text-align:left; display:inline-block;word-break: break-all;overflow:auto;">
 	  	<table class = "table table-hover">
 		  	<%
 		  	String[] htmlTags=(String[]) request.getAttribute("htmlTags");
@@ -179,8 +179,8 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  			
 		  			</br>
 					
-					<!-- 8 is the length of /mirror/ -->
-					<font size="3" color="#80CF80"><%=htmlPaths[i]%></font>
+					
+					<font size="3" color="#80CF80"><%=htmlPaths[i].length() < 60 ? htmlPaths[i] : htmlPaths[i].substring(0, 60) + "..."%></font>
 		  			
 		  			<!-- /td -->
 		 		<!-- /tr -->
@@ -188,7 +188,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<!--  tr -->
 					<!-- td -->
 					<div class="row-fluid" align="left">	
-						<% if(imgPaths[i] != null) { %>
+						<% if(imgPaths[i] != null && !imgPaths[i].equals("")) { %>
 							<div class = "span2">
 								<img  src="<%=imgPaths[i]%>">
 							</div>
