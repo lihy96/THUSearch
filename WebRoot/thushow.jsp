@@ -219,34 +219,36 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</ul>
 		</div>
 	</div> 
-	<div class="span6" style="position: fixed">
-		</br>
-		</br>
-		</br>
-		</br>
-		</br>
-		<table style="margin-left:100px; border-left: medium inset #E0E0E0; border-top: hidden" class="table">
-			<%
-		  	if(recommendWords!=null && recommendWords.length>0){
-		  		%><tr><td> 
-		  			
-		  			<h4 class = "text-success" ><img src="network.png" class="img-rounded" style="height:24px; width:24px; "></img>
-		  				<font  color="#CD8500">相关搜索：</font></h4>
-		  				</br>
-		  				 <%
-					  	for(int i=0; i < recommendWords.length;i++){ 
-					  	
-					  		if (recommendWords[i] == null) continue;
-					  			%>
-					  		<a class = "text-warning" href="/THUSearch/servlet/THUServer?query=<%= recommendWords[i] %>&Submit=Submit">
-					  		<font size="3" color="#1E90FF"><%= recommendWords[i] %></font>
-					  		</a>
-				  			<br/>
-			  			<% }
-		  		%></td></tr> <%
-		  	}
-		  	%>
-  		</table>
+	<div class="span6" >
+		<div >
+			</br>
+			</br>
+			</br>
+			</br>
+			</br>
+			<table style="margin-left:100px; border-left: medium inset #E0E0E0; border-top: hidden" class="table">
+				<%
+			  	if(recommendWords!=null && recommendWords.length>0){
+			  		%><tr><td> 
+			  			
+			  			<h4 class = "text-success" ><img src="network.png" class="img-rounded" style="height:24px; width:24px; "></img>
+			  				<font  color="#CD8500">相关搜索：</font></h4>
+			  				</br>
+			  				 <%
+						  	for(int i=0; i < recommendWords.length;i++){ 
+						  	
+						  		if (recommendWords[i] == null) continue;
+						  			%>
+						  		<a class = "text-warning" href="/THUSearch/servlet/THUServer?query=<%= recommendWords[i] %>&Submit=Submit">
+						  		<font size="3" color="#1E90FF"><%= recommendWords[i] %></font>
+						  		</a>
+					  			<br/>
+				  			<% }
+			  		%></td></tr> <%
+			  	}
+			  	%>
+	  		</table>
+  		</div>>
 	</div>
 </div>
 
