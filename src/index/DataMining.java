@@ -315,11 +315,10 @@ public class DataMining {
 		});
 		ArrayList<String> resultList = new ArrayList<String>();
 		for (int i = 0; i < Math.min(num, similarList.size()); ++i) {
-			resultList.add(i2s.get(similarList.get(i).getKey()));
+			String corr_word = i2s.get(similarList.get(i).getKey());
+			if (!corr_word.equals(word))
+				resultList.add(corr_word);
 		}
-//		for (Entry<Integer, Double> similarwork : similarList) {
-//			resultList.add(i2s.get(similarwork.getKey()));
-//		}
 		return resultList;
 	}
 	
@@ -342,12 +341,10 @@ public class DataMining {
 	}
 	
 	public ArrayList<String> find_sim_words(String word, int num) {
-		if (!s2i.containsKey(word)) {
-			return new ArrayList<String>();
-		}
+		if (!s2i.containsKey(word)) return new ArrayList<String>();
 		int wordId = s2i.get(word);
-		//System.out.println("##########"+wordId);
 		ArrayList<Integer> relateIdList = relate.get(wordId);
+		if (relateIdList == null) return new ArrayList<String>();
 		ArrayList<String> relateList = new ArrayList<String>();
 		for (int i = 0; i < Math.min(num, relateIdList.size()); ++i) {
 			relateList.add(i2s.get(relateIdList.get(i)));

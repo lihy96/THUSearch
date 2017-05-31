@@ -52,35 +52,6 @@ public class THUServer extends HttpServlet{
 		sw.load_words(indexDir+"/relation.txt", indexDir+"/autocom.txt");
 	}
 	
-//	public class AutoComplete extends HttpServlet {
-//		public void doGet(HttpServletRequest request, HttpServletResponse response) 
-//				throws ServletException, IOException{
-//			response.setContentType("text/html;charset=utf-8");
-//			request.setCharacterEncoding("utf-8");
-//			String word=request.getParameter("query");
-//			ArrayList<String> completeWords = sw.find_autocom_words(word, 5);
-//			String[] recommendWords = completeWords.toArray(new String[completeWords.size()]);
-//			
-//			try {
-//				request.setAttribute("words",recommendWords);
-//				PrintWriter out = response.getWriter();
-//				for (String string : recommendWords) {
-//					out.println(string);
-//				}
-////				request.getRequestDispatcher("/thushow.jsp").forward(request,
-////						response);
-//			}
-//			catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		public void doPost(HttpServletRequest request, HttpServletResponse response)
-//				throws ServletException, IOException {
-//			this.doGet(request, response);
-//		}
-//	}
-	
 	public ScoreDoc[] showList(ScoreDoc[] results,int page){
 		if(results==null || results.length<(page-1)*PAGE_RESULT){
 			return null;
@@ -145,15 +116,13 @@ public class THUServer extends HttpServlet{
 			System.setOut(out);
 			
 			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
-			Map<Integer, ArrayList<String>> mutiCorrWords = new HashMap<Integer, ArrayList<String>>();
 			System.out.print("ansj result : ");
 			int id = 0;
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
 	//			simWords.addAll(sw.find(word.getName(), 5));
-				mutiSimWords.put(id, sw.find_sim_words(word.getName(), 5));
-				mutiCorrWords.put(id++, sw.find_correct_words(word.getName(), 4));
+				mutiSimWords.put(id ++, sw.find_sim_words(word.getName(), 5));
 	//			ScoreDoc[] tmpHits = getHits(word.getName(), page);
 				TopDocs td = search.searchQuery(word.getName(), 100);
 	            addHits(hits, td.scoreDocs, 1.0f);
@@ -166,13 +135,8 @@ public class THUServer extends HttpServlet{
 					simList.add(words.get(i / id));
 				}
 			}
-			ArrayList<String> corrList = new ArrayList<String>();
-			for (int i = 0; i < 4; ++i) {
-				ArrayList<String> words = mutiCorrWords.get(i % id);
-				if (words.size() > (i / id)) {
-					corrList.add(words.get(i / id));
-				}
-			}
+			ArrayList<String> corrList = sw.find_correct_words(queryString, 4);
+			System.out.println("corrList size : " + corrList.size());
 			
 			/**
 			 * IKAnalyzer split word package
