@@ -140,7 +140,7 @@ public class SimilarWords {
 			while ((line = reader.readLine()) != null) {
 				if (line.equals("")) continue;
 				
-				String[] info = line.split(" ");
+				String[] info = line.split("\t");
 				if (!s2i.containsKey(info[0])) {
 					s2i.put(info[0], id);
 					i2s.put(id ++, info[0]);
