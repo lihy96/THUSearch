@@ -13,3 +13,4 @@ lib/heritrix*
 .settings/
 .classpath
 .project
+*.log

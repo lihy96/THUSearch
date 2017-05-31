@@ -20,7 +20,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
 	    			  	<link rel="stylesheet" href="css/speech-input.css">
 						<link rel="stylesheet" href="css/demo.css">	
-    <script src="jquery-1.11.3.min.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
     <script src="bootstrap/js/bootstrap-typeahead.js"/>
     
 	

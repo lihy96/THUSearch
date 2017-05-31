@@ -93,17 +93,26 @@ public class THUServer extends HttpServlet{
 			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
 			System.setOut(out);
 			
-			ArrayList<String> simWords = new ArrayList<String>();
+			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
 			System.out.print("ansj result : ");
+			int id = 0;
 			for (org.ansj.domain.Term word : queryWords) {
 				if (word.getName().matches(" *")) continue;
 				System.out.print("<" + word.getName() + ">");
-				simWords.addAll(sw.find(word.getName(), 5));
+//				simWords.addAll(sw.find(word.getName(), 5));
+				mutiSimWords.put(id++, sw.find(word.getName(), 5));
 //				ScoreDoc[] tmpHits = getHits(word.getName(), page);
 				TopDocs td = search.searchQuery(word.getName(), 100);
 	            addHits(hits, td.scoreDocs, 1.0f);
 			}
 			System.out.println("");
+			ArrayList<String> tmpList = new ArrayList<String>();
+			for (int i = 0; i < 10; ++i) {
+				ArrayList<String> words = mutiSimWords.get(i % id);
+				if (words.size() > (i / id)) {
+					tmpList.add(words.get(i / id));
+				}
+			}
 			
 			/**
 			 * IKAnalyzer split word package
@@ -128,15 +137,8 @@ public class THUServer extends HttpServlet{
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-	        
-			/*for (int i = 0; i < hits.size(); ++i) {
-				Document doc = search.getDoc(hits.get(i).doc);
-				System.out.println("doc=" + hits.get(i).doc + " score="
-					+ hits.get(i).score + " picPath= "
-					+ doc.get("picPath")+ " tag= "+doc.get("abstract"));
-			}*/
 			
-	        setRequestAttribute(request, response, hits, simWords, queryString, page);
+	        setRequestAttribute(request, response, hits, tmpList, queryString, page);
 			
 		}
 	}
