@@ -13,7 +13,7 @@ import org.apache.poi.hwpf.model.FieldsDocumentPart;
 import org.jsoup.Jsoup;
 
 import cn.edu.hfut.dmic.contentextractor.ContentExtractor;
-import index.SimilarWords;
+import index.DataMining;
 import index.THUIndexer;
 import sun.security.acl.OwnerImpl;
 
@@ -68,7 +68,7 @@ public class HTMLParser {
 		}
 	}
 	
-	public static void tokenParser(SimilarWords sw, Integer docId, String html, Analyzer analyzer) {
+	public static void tokenParser(DataMining sw, Integer docId, String html, Analyzer analyzer) {
 		try {
 			org.jsoup.nodes.Document doc = Jsoup.parse(html);
 			

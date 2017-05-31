@@ -20,6 +20,7 @@ import org.jsoup.select.Elements;
 
 import util.DirectoryChecker;
 import util.FileOperator;
+import util.StaticValue;
 
 public class PageRank {
 	private double alpha;
@@ -49,9 +50,9 @@ public class PageRank {
 		this.map = _map;
 		this.webs = _webs;
 		this.outDir = _out;
-		pr_filepath = outDir + "/pagerank.txt";
-		pr_analyze = outDir + "/analyze.txt";
-		rank_path = outDir + "/rankToInt.txt";
+		pr_filepath = outDir + StaticValue.PR_PATH;
+		pr_analyze = outDir + StaticValue.PR_ANALYZE_PATH;
+		rank_path = outDir + StaticValue.PR_ROUND_INT_PATH;
 	}
 
 	public void calPageRank() {

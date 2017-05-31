@@ -15,6 +15,7 @@ import util.ConfReader;
 import util.DocReader;
 import util.FileOperator;
 import util.PDFReader;
+import util.StaticValue;
 import util.XMLReader;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -73,10 +74,10 @@ public class THUIndexer {
 		ConfReader.confRead("conf/indexer.conf", confs);
 		
 		if ((outDir = confs.get("output.dir")) == null)
-			outDir = "forIndex";
-		indexDir = outDir + "/index";
-		globalPath = outDir + "/global.txt";
-		fileListPath = outDir + "/fileList.txt";
+			outDir = StaticValue.INDEX_DIR;
+		indexDir = outDir + StaticValue.INDEX_DIR;
+		globalPath = outDir + StaticValue.GLOBAL_PATH;
+		fileListPath = outDir + StaticValue.FILE_LIST_PATH;
 		
 		if ((srcDir = confs.get("SrcDir")) == null)
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
@@ -97,14 +98,14 @@ public class THUIndexer {
 		 */
 		Map<String, Integer> fileList = si.getFileList();
 		System.out.println("Index Document : " + fileList.size());
-		try {
-			indexer.indexDocuments(fileList, si.webs);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			indexer.indexDocuments(fileList, si.webs);
+//		}
+//		catch (Exception e) {
+//			e.printStackTrace();
+//		}
 		
-		indexer.simWords(fileList);
+		indexer.dataMining(fileList);
 	}
 	
 	/**
@@ -180,18 +181,17 @@ public class THUIndexer {
 
     }
 	
-	public void simWords(Map<String, Integer> fileList) {
-		String relaPath = outDir + "/relation.txt";
-		File file = new File(relaPath);
-		if (file.exists()) return ;
+	public void dataMining(Map<String, Integer> fileList) {
+		String relaPath = outDir + StaticValue.SIM_WORD_PATH;
+		String autocomPath = outDir + StaticValue.AUTO_COM_PATH;
 		
-		SimilarWords sw = new SimilarWords();
+		DataMining sw = new DataMining();
 		int count = 0;
 		IKAnalyzer ikAnalyzer = new IKAnalyzer();
 		for (Entry<String, Integer> entry : fileList.entrySet()) {
 			count ++;
 			if (count % 100 == 0) {
-				System.out.println("Token process : " + count);
+				System.out.println("Token read : " + count);
 			}
 			
 			if (entry.getKey().endsWith(".html") || 
@@ -200,8 +200,17 @@ public class THUIndexer {
 				HTMLParser.tokenParser(sw, entry.getValue(), content, ikAnalyzer);
 			}
 		}
-		sw.init();
-		sw.save(relaPath);
+
+		File reFile = new File(relaPath);
+		if (!reFile.exists()) {
+			sw.init_sim_words();
+			sw.save_sim_words(relaPath);
+		}
+		
+		File acFile = new File(autocomPath);
+		if (!acFile.exists()) {
+			sw.save_autocom_word(autocomPath);
+		}
 	}
 
 }
