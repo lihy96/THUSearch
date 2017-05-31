@@ -120,7 +120,13 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  	String[] spellCheckWords = (String[]) request.getAttribute("spellCheckWords");
 		  	
 			if(spellCheckWords!=null && spellCheckWords.length>0){
-		  		%><tr><td>你要找的是不是： <%
+		  		%><tr><td>
+		  		
+		  		
+		  		<img src="idea64.png" class="img-rounded" style="height:24px; width:24px; ">
+		  		<font size="3" color="#CD8500">你要找的是不是： </font>
+		  		
+		  		<%
 		  		for(int i=0; i < Math.min(spellCheckWords.length, 3); i++){
 		  			if (spellCheckWords[i] != null && spellCheckWords[i].equals(currentQuery)) continue;
 			  		%><a class="text-info" href="/THUSearch/servlet/THUServer?query=<%= spellCheckWords[i] %>&Submit=Submit">
@@ -220,7 +226,11 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<table style="margin-left:100px; border-left: medium inset #E0E0E0; border-top: hidden" class="table">
 			<%
 		  	if(recommendWords!=null && recommendWords.length>0){
-		  		%><tr><td> <h4 class = "text-success" >相关搜索：</h4>
+		  		%><tr><td> 
+		  			
+		  			<h4 class = "text-success" ><img src="network.png" class="img-rounded" style="height:24px; width:24px; "></img>
+		  				<font  color="#CD8500">相关搜索：</font></h4>
+		  				</br>
 		  				 <%
 					  	for(int i=0; i < recommendWords.length;i++){ 
 					  	
