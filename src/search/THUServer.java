@@ -209,6 +209,7 @@ public class THUServer extends HttpServlet{
 			recommendWords[1] = "tuijian 2";
 			recommendWords[2] = "tuijian 3";
 			//end of lihy96's code 
+
 			
 			getTagsAndPaths(tags, paths, absContent, htmls, search);
 		}

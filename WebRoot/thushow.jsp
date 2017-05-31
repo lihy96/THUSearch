@@ -221,7 +221,6 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  	%>
   		</table>
 	</div>
-	
 </div>
 
 <script src="js/speech-input.js"></script>
