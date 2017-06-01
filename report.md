@@ -170,7 +170,7 @@ http://myhome.tsinghua.edu.cn/ # 我们的家园
 
     3.  **content** : 网页正文内容是个很难去抽取的工作，所以我们调用了一个库WebCollector,它是一个爬虫框架，但是其中有个正文抽取的功能效果很不错，报告上说有99%的正文抽取正确率，我们随机抽样了几个网页内容进行查看，发现效果确实不错。
 
-    4.  **links** : 网页存在许多链接，链接上面的文字本身也是一种可以参考的信息，所以我们对于所有的<a>标签也建立一个links域
+    4.  **links** : 网页存在许多链接，链接上面的文字本身也是一种可以参考的信息，所以我们对于所有的`a`标签也建立一个links域
 
 > 注意：对于pdf,doc等之类的文档来说，我们只建立了title和content域。
 
@@ -211,7 +211,7 @@ http://myhome.tsinghua.edu.cn/ # 我们的家园
 
 上图中搜索`饥荒`一词时，出现两个看似奇怪的网页，打开链接才知道，原来是两份pdf，这两份pdf中均有`饥荒`一词，下图是第二个链接打开之后的搜索`饥荒`的结果。
 
-![screenshot from 2017-06-02 02-30-27](https://cloud.githubusercontent.com/assets/11888413/26694862/7fa5b612-46ce-11e7-9e5b-6001e2a2221e.png)
+![screenshot from 2017-06-02 02-46-40](https://cloud.githubusercontent.com/assets/11888413/26695516/c7cfe3ac-46d0-11e7-9324-f6c06c5e3e7e.png)
 
 ### 图片显示
 

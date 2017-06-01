@@ -14,3 +14,4 @@ lib/heritrix*
 .classpath
 .project
 *.log
+*.pdf
