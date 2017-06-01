@@ -113,6 +113,39 @@ $ mvn dependency:copy-dependencies
 
 前端部分时刻检测用户输入，当用户的查询词发生变化时就通过Ajax传给后端，后端进行检索并返回给前端`json`格式的列表，即为自动补全的词汇列表。
 
+### 查询词纠错
+
+该功能是搜索引擎常见的功能，用户的输入可能因为某些原因出错，搜索引擎需要在用户一部分查询词输入错误的情况下帮用户找到他可能要查询的词。
+
+下面是一些纠错的结果：
+
+![shzy](https://cloud.githubusercontent.com/assets/13219956/26691536/1351bd3c-4730-11e7-9764-12c68098f613.png)
+
+![tinghua](https://cloud.githubusercontent.com/assets/13219956/26691537/1353698e-4730-11e7-9dd0-4bee0e41b7f1.png)
+
+![ysbg](https://cloud.githubusercontent.com/assets/13219956/26691538/13548198-4730-11e7-9108-e6ef1f3333a3.png)
+
+
+### 相关词推荐
+
+该功能同样是搜索引擎的常见功能，用户在输入一个词之后可能还会搜索和当前查询词相关的词，从方便用户的角度考虑，搜索引擎有必要给出一些推荐搜索的词汇。
+
+
+下面是一些相关词推荐的结果：
+
+搜索“**清华**”给出的相关词推荐：
+
+![xgqinghua](https://cloud.githubusercontent.com/assets/13219956/26691776/f32e80b6-4730-11e7-8ee4-8cdfa3ecdbbc.png)
+
+搜索“**图书**”给出的相关词推荐：
+
+![xgtushu](https://cloud.githubusercontent.com/assets/13219956/26691777/f36065cc-4730-11e7-87e8-de940c386517.png)
+
+搜索“**金融**”给出的相关词推荐：
+
+![xgjinrong](https://cloud.githubusercontent.com/assets/13219956/26691778/f37d20e0-4730-11e7-84c8-0a2f3f343ca2.png)
+
+
 ### 语音输入
 
 ![voice](https://cloud.githubusercontent.com/assets/13219956/26683103/4d387880-4715-11e7-826d-a3c4e9d5ab35.png)
