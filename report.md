@@ -23,6 +23,47 @@
 
 ### 实验环境
 
+本项目调试环境为Eclipse内置Tomcat8, Ubuntu16.04.
+
+#### 项目准备
+
+- 需要安装maven工具，以下载依赖包
+
+```Bash
+$ mvn clean
+$ mvn package
+$ mvn dependency:copy-dependencies
+```
+
+- Tomcat8在Eclipse中的配置,流程如下
+
+1. 创建Runtime Environment
+
+```Bash
+1. Window -> Preferences -> Server -> Runtime Environments -> Add...
+	-> Apache Tomcat v8.0 -> Next
+2. 指定Tomcat8.0的安装根目录和Java JRE的安装路径，点击完成即可。
+```
+
+2. 创建并配置Server
+
+```Bash
+1. Window -> Show View -> Others... -> Server -> Servers -> OK
+	打开服务器窗口
+2. 右键 -> New -> Server -> Tomcat v8.0 Server (Server's host name, 
+	Server name取默认即可, Server Runtime environment 选择上一步选择创建好的Tomcat8.0)
+	-> Next -> 将本项目工程添加至右方 -> Finish
+3. 在左侧项目导航栏中可以看见有个Servers项目工程，右键 -> Run As -> Run Configurations... 
+	Arguments -> Working Directory: -> 将工作目录改为项目根目录
+```
+
+- Eclipse 配置项目
+
+```Bash
+1. File -> New -> Others... -> Web -> Dynamic Web Project -> 选择项目根目录文件夹，Target Runtime Environment -> Next -> Next -> 修改WebContent至WebRoot -> Finish
+2. 
+```
+
 ## 实验工具
 
 
@@ -62,7 +103,7 @@
 
 我们实现的语音输入除了基础的语音识别功能之外，还具有自动识别用户语言的功能（目前的默认设置的识别语言包括中文、英文）。此外，随着用户说出的词的不断增多，之前的词也会自动调整成更合适的选项。
 
-###### 注：使用语音输入功能是需要用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。
+###### 注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。
 
 ## 实验感想
 
