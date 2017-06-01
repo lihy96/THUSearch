@@ -15,8 +15,15 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
     <!-- bootstrap -->
     
       <link rel="stylesheet" href="css/jquery-ui.css">
+       <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+	    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
+	    <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
+	  	<link rel="stylesheet" href="css/speech-input.css">
+		<link rel="stylesheet" href="css/demo.css">	
 	  <script src="js/jquery-1.12.4.js"></script>
 	  <script src="js/jquery-ui.js"></script>
+	   <script src="bootstrap/js/bootstrap-typeahead.js"></script>
 	  <script>
 	  $( function() {
 	    function log( message ) {
@@ -39,31 +46,23 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	          }
 	        } );
 	      },
+	      appendTo: "#results",
+	      open: function() {
+				console.log("open");
+		        $(this).autocomplete('widget').css('z-index', 100000);
+		        return false;
+
+	      },
 	      minLength: 0,
 	      select: function( event, ui ) {
 	        log( "Selected: " + ui.item.value + " aka " + ui.item.id );
 	      }
+	      
 	    } );
 	  } );
 	  </script>
     
-    
-    
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
-    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
-    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet" />
-    <link href="bootstrap/js/bootstrap.min.js" rel="stylesheet" />
-	    			  	<link rel="stylesheet" href="css/speech-input.css">
-						<link rel="stylesheet" href="css/demo.css">	
-    <!--  script src="js/jquery-1.11.3.min.js"></script-->
-    <script src="bootstrap/js/bootstrap-typeahead.js"/>
-    
-	
-    <!--  link rel="stylesheet" type="text/css" href="css/floating-scroll.css"/>
-    <script src="js/jquery.sticky-div.js"></script>
-    <script src="js/jquery.floating-scroll.js"></script> -->
 
-    <script src="bootstrap/js/bootstrap-typeahead.js"></script>
     <!-- global font styles -->
     <style type="text/css">
         body,a,p,input,button{font-family:Arial,Verdana,"Microsoft YaHei",Georgia,Sans-serif}
@@ -118,8 +117,10 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				      		class="speech-input" onfocus="style.backgroundColor='#FFFFFF'" 
 				      		onblur="style.backgroundColor='#DCDCDC'" data-patience="3"
 				      		lang="zh-Hans"/>
+	
 				      <input type="submit" name="Submit" value="搜索" style="margin-top:0px"
 				      		class = "btn btn-primary" />
+				      		
 			   		</label>
 			  	</form>
 			  </div>
@@ -130,7 +131,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <div class = "row-fluid" style="text-align:left">
 	<div class="span1"></div>
-	<div class="span5" style="text-align:left">
+	<div class="span5" style="text-align:left; display:inline-block;word-break: break-all;overflow:auto;">
 	  	<table class = "table table-hover">
 		  	<%
 		  	String[] htmlTags=(String[]) request.getAttribute("htmlTags");
@@ -178,8 +179,8 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		  			
 		  			</br>
 					
-					<!-- 8 is the length of /mirror/ -->
-					<font size="3" color="#80CF80"><%=htmlPaths[i]%></font>
+					
+					<font size="3" color="#80CF80"><%=htmlPaths[i].length() < 60 ? htmlPaths[i] : htmlPaths[i].substring(0, 60) + "..."%></font>
 		  			
 		  			<!-- /td -->
 		 		<!-- /tr -->
@@ -187,7 +188,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<!--  tr -->
 					<!-- td -->
 					<div class="row-fluid" align="left">	
-						<% if(imgPaths[i] != null) { %>
+						<% if(imgPaths[i] != null && !imgPaths[i].equals("")) { %>
 							<div class = "span2">
 								<img  src="<%=imgPaths[i]%>">
 							</div>
