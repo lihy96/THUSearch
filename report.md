@@ -1,7 +1,7 @@
 # 校园搜索引擎构建 设计文档
 
-计45 李昊阳 2014011421
-计45 王龙涛 
+计45 **李昊阳** 2014011421
+计45 **王龙涛** 2014011406
 
 ## 实验介绍
 
@@ -27,7 +27,7 @@
 
 #### 项目准备
 
-- 需要安装maven工具，以下载依赖包
+**需要安装maven工具，以下载依赖包**
 
 ```Bash
 $ mvn clean
@@ -35,7 +35,9 @@ $ mvn package
 $ mvn dependency:copy-dependencies
 ```
 
-- Tomcat8在Eclipse中的配置,流程如下
+#### 项目配置
+
+- Tomcat8在*Eclipse*中的配置,流程如下
 
 1. 创建Runtime Environment
 
@@ -60,16 +62,99 @@ $ mvn dependency:copy-dependencies
 - Eclipse 配置项目
 
 ```Bash
-1. File -> New -> Others... -> Web -> Dynamic Web Project -> 选择项目根目录文件夹，Target Runtime Environment -> Next -> Next -> 修改WebContent至WebRoot -> Finish
-2. 
+1. 打开项目 -> Dynamic Web Project -> 选择Target Runtime选择Tomcatv8.0 -> 
+	两次Next -> 修改WebContent至WebRoot -> Finish
+2. 添加jar包，位于targer/dependency目录下
+3. 配置部署文件夹(Deployment Assembly) :
+	/build/classes			WEB-INF/classes
+	/target/dependency		WEB-INF/lib
+	/WebRoot				/
 ```
 
+#### 项目结构
+
+```Bash
+├── build/
+│   └── classes/				java编译生成文件目录
+├── conf/						配置文件目录
+├── forIndex/					索引目录
+├── pom.xml						maven配置文件
+├── README.md					README
+├── report.md					项目报告
+├── src							项目源码
+├── target/
+│   └── dependency/				jar包所在位置
+└── WebRoot/					网站根目录
+    ├── servlet/				网站css,js等静态文件目录
+    ├── thusearch.jsp			搜索主页
+    ├── thushow.jsp				搜索页面
+    └── WEB-INF/				网站配置文件目录
+```
 ## 实验工具
 
 
 ## 基本功能的实现
 
-### 数据抓取
+###  数据抓取
+
+#### Heritrix
+
+基本上同介绍ppt上面所说配置相同，只是把接受的url从`news.tsinghua.edu.cn`改为了`*.tsinghua.edu.cn`,并且种子也新增了如下：
+
+```Bash
+http://news.tsinghua.edu.cn/ # 清华新闻
+http://info.tsinghua.edu.cn/ # 信息门户
+http://yz.tsinghua.edu.cn/   # 研究生招生网
+http://life.tsinghua.edu.cn/ # 生命科学院
+http://www.tsinghua.edu.cn/  # 官网主页
+http://www.sem.tsinghua.edu.cn/ # 经管主页
+http://www.law.tsinghua.edu.cn/ # 法学院主页
+http://www.tup.tsinghua.edu.cn/ # 出版社
+http://postinfo.tsinghua.edu.cn/node/ # 内网信息
+http://academic.tsinghua.edu.cn/ # 教学门户
+http://learn.tsinghua.edu.cn/   # 教学门户
+http://friend.cic.tsinghua.edu.cn/ # 计算机实验室主页
+http://student.tsinghua.edu.cn/ # 学生清华
+http://myhome.tsinghua.edu.cn/ # 我们的家园
+```
+
+可能是种子太多的缘故，我们爬取的url速度很慢，目前总共爬取了31G,共计8万个文件，4万个html，之后就没有在进行爬取了。
+
+### 基于概率模型的内容排序算法
+
+图片检索实验中使用的lucene版本为3.5.0,版本过老，原先我们项目是基于图片检索实验框架的，但是后来因为maven支持的IKAnalyzer版本过高，同LUCENE_35不兼容，所以我们把lucene包升级至4.7.2。那么原先的实验框架需要大改，我们重新对实验框架进行调整，花费了较多的时间和精力。新框架使用lucene47内置BM25算法进行内容排序。
+
+### 基于HTML结构的分域权重
+
+建立索引的时候，我们对html结构进行了分析并不同的域，详细情况如下：
+
+  1.  **title** : html的标题属性设置为title域
+
+  2.  **keywords** : 对html中的h1-h6单独设置一个keyword域
+
+  3.  **content** : 网页正文内容是个很难去抽取的工作，所以我们调用了一个库WebCollector,它是一个爬虫框架，但是其中有个正文抽取的功能效果很不错，报告上说有99%的正文抽取正确率，我们随机抽样了几个网页内容进行查看，发现效果确实不错。
+
+  4.  **links** : 网页存在许多链接，链接上面的文字本身也是一种可以参考的信息，所以我们对于所有的<a>标签也建立一个links域
+
+> 注意：对于pdf,doc等之类的文档来说，我们只建立了title和content域。
+
+最后，对于各个域，通过小范围的数据测试结果，我们最终将权重设置如下：
+
+```Bash
+<title : keywords : content : links> = <100.0f : 10.0f : 5.0f : 1.0f>
+```
+
+能够得到一个比较好的搜索结果，使得标题符合搜索关键词的网页能够更加靠前，同时，关键词和内容匹配的更全面的网页也能取得一个比较好的评分
+
+### 基于PageRank的链接结构分析
+
+我们在建立索引的时候，首先对于网页内容的链接结构进行分析，然后在调用pagerank接口离线计算各个网页的pagerank值，并将计算出的pr值作为lucene的各个document的boost值，同lucene的BM25算法相结合起来，能够取得更优的排序结果。
+
+![screenshot from 2017-06-02 01-36-58](https://cloud.githubusercontent.com/assets/11888413/26692687/358025b0-46c7-11e7-8db4-c81db3992937.png)
+
+![screenshot from 2017-06-02 01-39-31](https://cloud.githubusercontent.com/assets/11888413/26692800/9883e4f8-46c7-11e7-97ab-f71bbf7d3f44.png)
+
+从上图结果可以看出，搜索的时候，官网出现的概率变大了许多，那是因为官网存在许多入链，增加了pagerank评分，从而使的搜索结果变得更靠前的缘故。
 
 ## 扩展功能的实现
 

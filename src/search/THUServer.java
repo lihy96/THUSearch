@@ -110,47 +110,47 @@ public class THUServer extends HttpServlet{
 			/**
 			 * ansj_seg word-spliter package
 			 */
-//			PrintStream out = System.out;
-//			System.setOut(new PrintStream("err.log"));
-//			MyStaticValue.isRealName = true;
-//			MyStaticValue.isNameRecognition = true;
-//			MyStaticValue.isNumRecognition = true;
-//			MyStaticValue.isQuantifierRecognition = true;
-//			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
-//			System.setOut(out);
-//			
-//			System.out.print("ansj result : ");
-//			for (org.ansj.domain.Term word : queryWords) {
-//				if (word.getName().matches(" *")) continue;
-//				System.out.print("<" + word.getName() + ">");
-//				mutiSimWords.put(id ++, sw.find_sim_words(word.getName(), 5));
-//				TopDocs td = search.searchQuery(word.getName(), 100);
-//	            addHits(hits, td.scoreDocs, 1.0f);
-//			}
-//			System.out.println("");
+			PrintStream out = System.out;
+			System.setOut(new PrintStream("err.log"));
+			MyStaticValue.isRealName = true;
+			MyStaticValue.isNameRecognition = true;
+			MyStaticValue.isNumRecognition = true;
+			MyStaticValue.isQuantifierRecognition = true;
+			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
+			System.setOut(out);
+			
+			System.out.print("ansj result : ");
+			for (org.ansj.domain.Term word : queryWords) {
+				if (word.getName().matches(" *")) continue;
+				System.out.print("<" + word.getName() + ">");
+				mutiSimWords.put(id ++, sw.find_sim_words(word.getName(), 5));
+				TopDocs td = search.searchQuery(word.getName(), 100);
+	            addHits(hits, td.scoreDocs, 1.0f);
+			}
+			System.out.println("");
 			
 			/**
 			 * IKAnalyzer split word package
 			 */
-			id ++;
-			QueryParser queryParser = new QueryParser(Version.LUCENE_47, "content", new IKAnalyzer(false));
-			Query queryClass;
-			try {
-				queryClass = queryParser.parse(queryString);
-				Set<Term> terms = new HashSet<Term>();
-				queryClass.extractTerms(terms);
-				System.out.print("IKAnalyzer result : ");
-				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
-					Term term = iter.next();
-					String query = term.text().trim();
-					System.out.print("<" + query + ">");
-					TopDocs td = search.searchQuery(query, 100);
-		            addHits(hits, td.scoreDocs, 1.0f);
-				}
-				System.out.println("");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//			id ++;
+//			QueryParser queryParser = new QueryParser(Version.LUCENE_47, "content", new IKAnalyzer(false));
+//			Query queryClass;
+//			try {
+//				queryClass = queryParser.parse(queryString);
+//				Set<Term> terms = new HashSet<Term>();
+//				queryClass.extractTerms(terms);
+//				System.out.print("IKAnalyzer result : ");
+//				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
+//					Term term = iter.next();
+//					String query = term.text().trim();
+//					System.out.print("<" + query + ">");
+//					TopDocs td = search.searchQuery(query, 100);
+//		            addHits(hits, td.scoreDocs, 1.0f);
+//				}
+//				System.out.println("");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 			
 			/************** End of Code ******************/
 			
