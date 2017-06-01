@@ -80,6 +80,7 @@ $ mvn dependency:copy-dependencies
 - 使用Ajax增强实时交互的能力；
 - 各个部件的布局参照Google，Baidu，搜索框和相关搜索部件悬浮于界面上不随滚轮滑动而滑动；
 - 不同尺寸大小的窗口的适应；
+- 搜索结果的正文高亮；
 
 ### 图片显示
 
