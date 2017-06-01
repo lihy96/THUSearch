@@ -38,8 +38,10 @@ public class HTMLParser {
 				org.jsoup.select.Elements imgs_url = body.select("img");
 				if (imgs_url.size() == 1) {
 					String img = imgs_url.get(0).absUrl("src");
-					Field imgField = new StringField("imgurl", img, Field.Store.YES);
-					document.add(imgField);
+					if (!img.equals("")) {
+						Field imgField = new StringField("imgurl", img, Field.Store.YES);
+						document.add(imgField);
+					}
 				}
 				content = body.text();
 			} catch (Exception e) {}
