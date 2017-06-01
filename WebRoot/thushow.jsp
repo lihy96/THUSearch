@@ -84,7 +84,7 @@ String htmlPath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <%
 	String currentQuery=(String) request.getAttribute("currentQuery");
 	int currentPage=(Integer) request.getAttribute("currentPage");
-	String[] autoComplete = (String[]) request.getAttribute("autoComplete");
+	// String[] autoComplete = (String[]) request.getAttribute("autoComplete");
 	String[] recommendWords = (String[]) request.getAttribute("recommendWords");
 %>
 
