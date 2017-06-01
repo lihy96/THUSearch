@@ -16,6 +16,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
 //import org.apache.lucene.queryParser.MultiFieldQueryParser;
 //import org.apache.lucene.queryParser.ParseException;
 //import org.apache.lucene.queryParser.QueryParser;
@@ -100,67 +101,68 @@ public class THUServer extends HttpServlet{
 			System.out.println("null query");
 		}else{	
 			//分词
-			// IKAnalyzer ika = new IKAnalyzer(false);
 			ArrayList<ScoreDoc> hits = new ArrayList<ScoreDoc>();
+			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
+			int id = 0;
+			
+			/********* Compare Between ansj and IKAnalyzer **********/
 			
 			/**
 			 * ansj_seg word-spliter package
 			 */
-			PrintStream out = System.out;
-			System.setOut(new PrintStream("err.log"));
-			MyStaticValue.isRealName = true;
-			MyStaticValue.isNameRecognition = true;
-			MyStaticValue.isNumRecognition = true;
-			MyStaticValue.isQuantifierRecognition = true;
-			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
-			System.setOut(out);
+//			PrintStream out = System.out;
+//			System.setOut(new PrintStream("err.log"));
+//			MyStaticValue.isRealName = true;
+//			MyStaticValue.isNameRecognition = true;
+//			MyStaticValue.isNumRecognition = true;
+//			MyStaticValue.isQuantifierRecognition = true;
+//			org.ansj.domain.Result queryWords = ToAnalysis.parse(queryString);
+//			System.setOut(out);
+//			
+//			System.out.print("ansj result : ");
+//			for (org.ansj.domain.Term word : queryWords) {
+//				if (word.getName().matches(" *")) continue;
+//				System.out.print("<" + word.getName() + ">");
+//				mutiSimWords.put(id ++, sw.find_sim_words(word.getName(), 5));
+//				TopDocs td = search.searchQuery(word.getName(), 100);
+//	            addHits(hits, td.scoreDocs, 1.0f);
+//			}
+//			System.out.println("");
 			
-			Map<Integer, ArrayList<String>> mutiSimWords = new HashMap<Integer, ArrayList<String>>();
-			System.out.print("ansj result : ");
-			int id = 0;
-			for (org.ansj.domain.Term word : queryWords) {
-				if (word.getName().matches(" *")) continue;
-				System.out.print("<" + word.getName() + ">");
-	//			simWords.addAll(sw.find(word.getName(), 5));
-				mutiSimWords.put(id ++, sw.find_sim_words(word.getName(), 5));
-	//			ScoreDoc[] tmpHits = getHits(word.getName(), page);
-				TopDocs td = search.searchQuery(word.getName(), 100);
-	            addHits(hits, td.scoreDocs, 1.0f);
+			/**
+			 * IKAnalyzer split word package
+			 */
+			id ++;
+			QueryParser queryParser = new QueryParser(Version.LUCENE_47, "content", new IKAnalyzer(false));
+			Query queryClass;
+			try {
+				queryClass = queryParser.parse(queryString);
+				Set<Term> terms = new HashSet<Term>();
+				queryClass.extractTerms(terms);
+				System.out.print("IKAnalyzer result : ");
+				for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
+					Term term = iter.next();
+					String query = term.text().trim();
+					System.out.print("<" + query + ">");
+					TopDocs td = search.searchQuery(query, 100);
+		            addHits(hits, td.scoreDocs, 1.0f);
+				}
+				System.out.println("");
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			System.out.println("");
+			
+			/************** End of Code ******************/
+			
 			ArrayList<String> simList = new ArrayList<String>();
 			for (int i = 0; i < 10; ++i) {
 				ArrayList<String> words = mutiSimWords.get(i % id);
-				if (words.size() > (i / id)) {
+				if (words != null && words.size() > (i / id)) {
 					simList.add(words.get(i / id));
 				}
 			}
 			ArrayList<String> corrList = sw.find_correct_words(queryString, 4);
 			System.out.println("corrList size : " + corrList.size());
-			
-			/**
-			 * IKAnalyzer split word package
-			 */
-	//		QueryParser queryParser = new QueryParser(Version.LUCENE_35, "content", new IKAnalyzer(false));
-	//		Query queryClass;
-	//		try {
-	//			queryClass = queryParser.parse(queryString);
-	//			// System.out.println(queryClass);
-	//			Set<Term> terms = new HashSet<Term>();
-	//			queryClass.extractTerms(terms);
-	//			System.out.print("IKAnalyzer result : ");
-	//			for (Iterator<Term> iter = terms.iterator(); iter.hasNext(); ) {
-	//				Term term = iter.next();
-	//				String query = term.text().trim();
-	//				System.out.print("<" + query + ">");
-	//				ScoreDoc[] tmpHits = getHits(query, page);
-	//	            addHits(hits, tmpHits, 1);
-	//			}
-	//			System.out.println("");
-	//		} catch (ParseException e) {
-	//			// TODO Auto-generated catch block
-	//			e.printStackTrace();
-	//		}
 			
 	        setRequestAttribute(request, response, hits, simList, corrList, queryString, page);
 
