@@ -1,7 +1,7 @@
 # 校园搜索引擎构建 设计文档
 
-计45 **李昊阳** 2014011421
-计45 **王龙涛** 2014011406
+计45 李昊阳 2014011421
+计45 王龙涛 2014011406
 
 [TOC]
 
@@ -33,7 +33,7 @@
 
 ### 2.1 项目准备
 
-**需要安装maven工具，以下载依赖包**
+需要安装maven工具，以下载依赖包
 
 ```Bash
 $ mvn clean
@@ -208,7 +208,7 @@ http://myhome.tsinghua.edu.cn/ # 我们的家园
 
 PageRank的计算公式为
 
-$$PageRank^{(k)}(n)=\alpha\\times\frac{1}{N}+(1-\alpha)\\times \sum\limits_{i→n}\frac{PageRank^{(k-1)}(i)}{Outdegree(i)}$$
+$$PageRank^{(k)}(n)=\alpha \times \frac{1}{N}+(1-\alpha) \times \sum\limits_{i→n}\frac{PageRank^{(k-1)}(i)}{Outdegree(i)}$$
 
 本实验中我们设定参数$alpha=0.15, N=20$。
 
@@ -270,18 +270,16 @@ $$PageRank^{(k)}(n)=\alpha\\times\frac{1}{N}+(1-\alpha)\\times \sum\limits_{i→
 
 查询词自动补全的功能是用户每输入一个字或者词，就搜索与当前查询词具有相同前缀的词汇并显示给用户。
 
-![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26686925/06c9742e-4721-11e7-8b99-87bc372a9abe.gif)
-
 ![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26711280/d5bef432-4791-11e7-901f-89e50f3efb25.png)
 
 前端部分时刻检测用户输入，当用户的查询词发生变化时就通过Ajax传给后端，后端进行检索并返回给前端`json`格式的列表，即为自动补全的词汇列表。
 
 后端自动补全词检索算法如下：
 
-   	1. 提取所有网页**正文**单词
- 	2. 统计计算单词的词频
- 	3. 按照词频进行排序，取出Top 6000的词汇，存入文件
- 	4. 前端提供搜索词x，按照排序进行搜索前缀为x的单词列表返回
+       	1. 提取所有网页**正文**单词
+       	2. 统计计算单词的词频
+       	3. 按照词频进行排序，取出Top 6000的词汇，存入文件
+       	4. 前端提供搜索词x，按照排序进行搜索前缀为x的单词列表返回
 
 ### 5.6 查询词纠错
 
@@ -354,13 +352,9 @@ $$
 
 我们注意到Google提供了语音输入的功能，可以在用户输入时提供很大的便利，因此我们也实现了这个功能。用户可以点击搜索框右边的“话筒”按钮（如下图），开始使用语音输入的功能。用户说出要查询的关键词即可，如果用户2s中内没有说话则认为用户语音输入结束。
 
-![luyin](https://cloud.githubusercontent.com/assets/13219956/26684904/1ebd2aae-471b-11e7-96eb-d6d7a4075b0d.gif)
-
 ![luyin](https://cloud.githubusercontent.com/assets/13219956/26711355/58df1b3a-4792-11e7-81f1-12fb8f7757fa.png)
 
 我们实现的语音输入除了基础的语音识别功能之外，还具有自动识别用户语言的功能（目前的默认设置的识别语言包括中文、英文）。此外，随着用户说出的词的不断增多，之前的词也会自动调整成更合适的选项，从下图可以看出语音输入可以较为准确地识别出用户说的查询词。
-
-![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711102/bf3467c0-4790-11e7-8357-2117bb623dc3.gif)
 
 ![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711339/3624741e-4792-11e7-8644-17da39144c4b.png)
 
