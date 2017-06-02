@@ -59,7 +59,7 @@ $ mvn dependency:copy-dependencies
 1. Window -> Show View -> Others... -> Server -> Servers -> OK
 	打开服务器窗口
 2. 右键 -> New -> Server -> Tomcat v8.0 Server (Server's host name, 
-	Server name取默认即可, Server Runtime environment 选择上一步选择创建好的Tomcat8.0)
+	Server name取默认即可, Server Runtime 选择上一步创建好的Tomcat v8.0运行环境)
 	-> Next -> 将本项目工程添加至右方 -> Finish
 3. 在左侧项目导航栏中可以看见有个Servers项目工程，右键 -> Run As -> Run Configurations... 
 	Arguments -> Working Directory: -> 将工作目录改为项目根目录
@@ -154,7 +154,7 @@ $ mvn dependency:copy-dependencies
 
 #### 4.1.1 Heritrix
 
-基本上同介绍ppt上面所说配置相同，只是把接受的url从`news.tsinghua.edu.cn`改为了`*.tsinghua.edu.cn`,并且种子也新增了如下：
+基本上同介绍ppt上面所说配置相同，把接收的url规则从`news.tsinghua.edu.cn`改为了`*.tsinghua.edu.cn`,并且种子也新增了如下：
 
 ```Bash
 http://news.tsinghua.edu.cn/ # 清华新闻
@@ -200,11 +200,11 @@ http://myhome.tsinghua.edu.cn/ # 我们的家园
 <title : keywords : content : links> = <100.0f : 10.0f : 5.0f : 1.0f>
 ```
 
-能够得到一个比较好的搜索结果，使得标题符合搜索关键词的网页能够更加靠前，同时，关键词和内容匹配的更全面的网页也能取得一个比较好的评分
+能够得到一个比较好的搜索结果，使得标题符合搜索关键词的网页能够更加靠前，同时，关键词和内容匹配的更全面的网页也能取得一个比较好的评分。
 
 ### 4.4 基于PageRank的链接结构分析
 
-我们在建立索引的时候，首先对于网页内容的链接结构进行分析，然后在调用pagerank接口离线计算各个网页的pagerank值。
+我们在建立索引的时候，首先对于网页内容的链接结构进行分析，然后再调用pagerank接口离线计算各个网页的pagerank值。
 
 PageRank的计算公式为
 
@@ -216,9 +216,8 @@ $$PageRank^{(k)}(n)=\alpha \times \frac{1}{N}+(1-\alpha) \times \sum\limits_{i�
 
 下面是两个搜索结果的例子，可以看出无论是给出结果的完整性还是顺序性，搜索引擎的表现都比较不错。
 
-![screenshot from 2017-06-02 01-36-58](https://cloud.githubusercontent.com/assets/11888413/26692687/358025b0-46c7-11e7-8db4-c81db3992937.png)
-
-![screenshot from 2017-06-02 01-39-31](https://cloud.githubusercontent.com/assets/11888413/26692800/9883e4f8-46c7-11e7-97ab-f71bbf7d3f44.png)
+![screenshot from 2017-06-02 13-40-40](https://cloud.githubusercontent.com/assets/11888413/26712370/3024a0fe-472c-11e7-93c3-a48f7d78bacb.png)
+![screenshot from 2017-06-02 13-40-55](https://cloud.githubusercontent.com/assets/11888413/26712375/36a9e862-472c-11e7-9aa7-6560d533e719.png)
 
 从上图结果可以看出，搜索的时候，官网出现的概率变大了许多，那是因为官网存在许多入链，增加了pagerank评分，从而使的搜索结果变得更靠前的缘故。
 
@@ -264,13 +263,13 @@ $$PageRank^{(k)}(n)=\alpha \times \frac{1}{N}+(1-\alpha) \times \sum\limits_{i�
 | 什么搜索引擎好 | <什么><搜索><引擎><好><搜索引擎><索引> | <什么><搜索引擎><好> | Ansj |
 
 
-从上面的表格中可以看出，IkAnalyzer具有分词过于碎片化，存在重复的分词结果，而却不能识别人名的问题，但是Ansj在这些方面表现的都更好。改进了分词结果之后，搜索出的结果也会更能符合用户的要求。
+从上面的表格中可以看出，IkAnalyzer具有分词过于碎片化，存在重复的分词结果，而且不能识别人名的问题，但是Ansj在这些方面表现的都更好。改进了分词结果之后，搜索出的结果也会更能符合用户的要求。
 
 ### 5.5 查询词自动补全
 
 查询词自动补全的功能是用户每输入一个字或者词，就搜索与当前查询词具有相同前缀的词汇并显示给用户。
 
-![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26711280/d5bef432-4791-11e7-901f-89e50f3efb25.png)
+![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26686925/06c9742e-4721-11e7-8b99-87bc372a9abe.gif)
 
 前端部分时刻检测用户输入，当用户的查询词发生变化时就通过Ajax传给后端，后端进行检索并返回给前端`json`格式的列表，即为自动补全的词汇列表。
 
@@ -301,7 +300,7 @@ $$PageRank^{(k)}(n)=\alpha \times \frac{1}{N}+(1-\alpha) \times \sum\limits_{i�
 假设两个字符串能通过 k 次修改、添加、删除一个字符的操作互相转化,则称这两个串的编辑距离为 k。
 ```
 
-求串 a 和串 b 的距离可以使用动态规划的方法。用 $f[i, j]$c 表示串a 的前 i 个字符和串 b 的前 j 个字符之间的编辑距离。那么:
+求串 a 和串 b 的距离可以使用动态规划的方法。用 $f[i, j]$ 表示串a 的前 i 个字符和串 b 的前 j 个字符之间的编辑距离。那么:
 
 - a 进行添加操作(b 进行删除操作),转移到 $f[i+1, j]$ ;
 - a 进行删除操作(b 进行添加操作),转移到 $f[i, j+1]$ ;
@@ -352,11 +351,11 @@ $$
 
 我们注意到Google提供了语音输入的功能，可以在用户输入时提供很大的便利，因此我们也实现了这个功能。用户可以点击搜索框右边的“话筒”按钮（如下图），开始使用语音输入的功能。用户说出要查询的关键词即可，如果用户2s中内没有说话则认为用户语音输入结束。
 
-![luyin](https://cloud.githubusercontent.com/assets/13219956/26711355/58df1b3a-4792-11e7-81f1-12fb8f7757fa.png)
+![luyin](https://cloud.githubusercontent.com/assets/13219956/26684904/1ebd2aae-471b-11e7-96eb-d6d7a4075b0d.gif)
 
 我们实现的语音输入除了基础的语音识别功能之外，还具有自动识别用户语言的功能（目前的默认设置的识别语言包括中文、英文）。此外，随着用户说出的词的不断增多，之前的词也会自动调整成更合适的选项，从下图可以看出语音输入可以较为准确地识别出用户说的查询词。
 
-![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711339/3624741e-4792-11e7-8644-17da39144c4b.png)
+![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711102/bf3467c0-4790-11e7-8357-2117bb623dc3.gif)
 
 **注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。**
 
@@ -366,7 +365,7 @@ $$
 
 刘老师上课的时候给我们深入浅出地讲解了很多搜索引擎的理论知识，而这次大作业就是将理论转化为实际最好的机会，通过一次次的实验，通过一步步的调试，我们不断加深着对理论知识的掌握程度，提高着自身的知识水平。
 
-因为这门课是我们本科阶段最后一门限选课，这次大作业也是本科阶段最后一次大作业，所以我们都十分珍惜这次机会。虽然这次大作业没有软工项目那么复杂，没有计原造CPU那么艰难，但是它却依然给我们留下了非常深刻的印象，我们不会忘记这次富有挑战性的过程，不会忘记为了前端 的一点点优化就调到深夜，不会忘记完成大作业时的成就感和心中的喜悦，我们有理由相信这次大作业必定成为多年之后美好难忘的回忆。
+因为这门课是我们本科阶段最后一门限选课，这次大作业也是本科阶段最后一次大作业，所以我们都十分珍惜这次机会。虽然这次大作业没有软工项目那么复杂，没有计原造计算机那么艰难，但是它却依然给我们留下了非常深刻的印象，我们不会忘记这次富有挑战性的过程，不会忘记为了前端 的一点点优化就调到深夜，不会忘记完成大作业时的成就感和心中的喜悦，我们有理由相信这次大作业必定成为多年之后美好难忘的回忆。
 
 最后向耐心为我们答疑解惑的老师和助教表示衷心的感谢！
 

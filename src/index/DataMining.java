@@ -275,18 +275,6 @@ public class DataMining {
 				correct.get(gram).add(wordId);
 			}
 		}
-//		for (Entry<Integer, Integer> wordwork : icount.entrySet()) {
-////			String word = wordwork.getKey();
-//			Integer wordId = wordwork.getKey();
-//			String word = i2s.get(wordId);
-//			for (int i = 0; i + Q <= word.length(); ++i) {
-//				String gram = word.substring(i, i + Q);
-//				if (!correct.containsKey(gram)) {
-//					correct.put(gram, new ArrayList<Integer>());
-//				}
-//				correct.get(gram).add(wordId);
-//			}
-//		}
 		System.out.println("Build correct inverted index finish !");
 	}
 	

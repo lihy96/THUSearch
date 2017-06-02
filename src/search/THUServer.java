@@ -32,6 +32,8 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import index.DataMining;
 import sun.swing.StringUIClientPropertyKey;
+import util.ConfReader;
+import util.StaticValue;
 
 import java.util.*;
 
@@ -41,16 +43,23 @@ import java.io.*;
 
 
 public class THUServer extends HttpServlet{
-	public static final int PAGE_RESULT=10;
-	public static final String indexDir="forIndex";
-	public static final String htmlDir="http://";
+	public static final int PAGE_RESULT = 10;
+	public static final String htmlDir = "http://";
+	public static String baseDir = StaticValue.BASE_DIR;
+	
 	private DataMining sw = new DataMining();
 	private THUSearcher search=null;
 	public THUServer(){
-		super();
-		search=new THUSearcher(new String(indexDir+"/index"));
-		search.loadGlobals(new String(indexDir+"/global.txt"));
-		sw.load_words(indexDir+"/relation.txt", indexDir+"/autocom.txt");
+		super();	
+		Map<String, String> confs = new HashMap<String, String>();
+		ConfReader.confRead("conf/indexer.conf", confs);
+		
+		if ((baseDir = confs.get("output.dir")) == null)
+			baseDir = StaticValue.BASE_DIR;
+		search=new THUSearcher(new String(baseDir + StaticValue.INDEX_DIR));
+		search.loadGlobals(new String(baseDir + StaticValue.GLOBAL_PATH));
+		sw.load_words(baseDir + StaticValue.SIM_WORD_PATH, 
+					baseDir + StaticValue.AUTO_COM_PATH);
 	}
 	
 	public ScoreDoc[] showList(ScoreDoc[] results,int page){
@@ -162,7 +171,6 @@ public class THUServer extends HttpServlet{
 				}
 			}
 			ArrayList<String> corrList = sw.find_correct_words(queryString, 4);
-			System.out.println("corrList size : " + corrList.size());
 			
 	        setRequestAttribute(request, response, hits, simList, corrList, queryString, page);
 

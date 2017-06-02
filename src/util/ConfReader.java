@@ -16,6 +16,7 @@ public class ConfReader {
 			
 			while ((line = br.readLine()) != null) {
 				if (line.equals("")) continue;
+				if (line.startsWith("#")) continue;
 				
 				String[] infos = line.trim().split("=");
 				if (infos.length != 2) {

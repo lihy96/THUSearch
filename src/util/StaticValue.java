@@ -2,7 +2,7 @@ package util;
 
 public class StaticValue {
 
-	public static String OUT_DIR = "forIndex/";
+	public static String BASE_DIR = "forIndex/";
 	
 	// lucene
 	public static String INDEX_DIR = "/index/";
@@ -17,6 +17,6 @@ public class StaticValue {
 	// data mining
 	public static String SIM_WORD_PATH = "/relation.txt";
 	public static String AUTO_COM_PATH = "/autocom.txt";
-	public static String CORRECT_PATH = "/correct.txt";
+//	public static String CORRECT_PATH = "/correct.txt";
 	public static Integer AUTO_COM_THRESHOLD = 200;
 }

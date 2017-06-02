@@ -74,12 +74,12 @@ public class THUIndexer {
 		ConfReader.confRead("conf/indexer.conf", confs);
 		
 		if ((outDir = confs.get("output.dir")) == null)
-			outDir = StaticValue.INDEX_DIR;
+			outDir = StaticValue.BASE_DIR;
 		indexDir = outDir + StaticValue.INDEX_DIR;
 		globalPath = outDir + StaticValue.GLOBAL_PATH;
 		fileListPath = outDir + StaticValue.FILE_LIST_PATH;
 		
-		if ((srcDir = confs.get("SrcDir")) == null)
+		if ((srcDir = confs.get("src.dir")) == null)
 			srcDir = "../heritrix-1.14.4/jobs/news_tsinghua-20170513083441917/mirror/";
 		
 		THUIndexer indexer=new THUIndexer(indexDir);
@@ -98,12 +98,12 @@ public class THUIndexer {
 		 */
 		Map<String, Integer> fileList = si.getFileList();
 		System.out.println("Index Document : " + fileList.size());
-//		try {
-//			indexer.indexDocuments(fileList, si.webs);
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			indexer.indexDocuments(fileList, si.webs);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		indexer.dataMining(fileList);
 	}
@@ -184,7 +184,7 @@ public class THUIndexer {
 	public void dataMining(Map<String, Integer> fileList) {
 		String relaPath = outDir + StaticValue.SIM_WORD_PATH;
 		String autocomPath = outDir + StaticValue.AUTO_COM_PATH;
-		String corrPath = outDir + StaticValue.CORRECT_PATH;
+//		String corrPath = outDir + StaticValue.CORRECT_PATH;
 		
 		DataMining sw = new DataMining();
 		int count = 0;
@@ -213,11 +213,11 @@ public class THUIndexer {
 			sw.save_autocom_word(autocomPath);
 		}
 		
-		File corFile = new File(corrPath);
-		if (!corFile.exists()) {
-			sw.init_correct_table();
-			sw.save_corr_table(corrPath);
-		}
+//		File corFile = new File(corrPath);
+//		if (!corFile.exists()) {
+//			sw.init_correct_table();
+//			sw.save_corr_table(corrPath);
+//		}
 	}
 
 }
