@@ -275,6 +275,8 @@ $$PageRank^{(k)}(n)=\alpha\\times\frac{1}{N}+(1-\alpha)\\times \sum\limits_{i→
 
 ![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26686925/06c9742e-4721-11e7-8b99-87bc372a9abe.gif)
 
+![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26711280/d5bef432-4791-11e7-901f-89e50f3efb25.png)
+
 前端部分时刻检测用户输入，当用户的查询词发生变化时就通过Ajax传给后端，后端进行检索并返回给前端`json`格式的列表，即为自动补全的词汇列表。
 
 后端自动补全词检索算法如下：
@@ -357,9 +359,13 @@ $$
 
 ![luyin](https://cloud.githubusercontent.com/assets/13219956/26684904/1ebd2aae-471b-11e7-96eb-d6d7a4075b0d.gif)
 
+![luyin](https://cloud.githubusercontent.com/assets/13219956/26711355/58df1b3a-4792-11e7-81f1-12fb8f7757fa.png)
+
 我们实现的语音输入除了基础的语音识别功能之外，还具有自动识别用户语言的功能（目前的默认设置的识别语言包括中文、英文）。此外，随着用户说出的词的不断增多，之前的词也会自动调整成更合适的选项，从下图可以看出语音输入可以较为准确地识别出用户说的查询词。
 
 ![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711102/bf3467c0-4790-11e7-8357-2117bb623dc3.gif)
+
+![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711339/3624741e-4792-11e7-8644-17da39144c4b.png)
 
 **注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。**
 
