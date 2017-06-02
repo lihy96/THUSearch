@@ -109,15 +109,15 @@ $ mvn dependency:copy-dependencies
 
 ## 3. 实验工具
 
-###### 因为本项目使用maven下载依赖包，所以实验使用的工具均可以在pom.xml文件中进行查看
+**因为本项目使用maven下载依赖包，所以实验使用的工具均可以在pom.xml文件中进行查看**
 
 #### Heritrix
 
 数据抓取工具 
 
-####  Lucene
+#### lucene-core
 
-搜索引擎框架
+​网站开源框架
 
 #### WebCollector
 
@@ -139,9 +139,7 @@ $ mvn dependency:copy-dependencies
 
 ​微软文档(doc,docx)解析工具
 
-#### lucene-core
 
-​网站开源框架
 
 #### jsoup
 
@@ -191,7 +189,9 @@ http://myhome.tsinghua.edu.cn/ # 我们的家园
 
     2.  **keywords** : 对html中的h1-h6单独设置一个keyword域
 
-    3.  **content** : 网页正文内容是个很难去抽取的工作，所以我们调用了一个库WebCollector,它是一个爬虫框架，但是其中有个正文抽取的功能效果很不错，报告上说有99%的正文抽取正确率，我们随机抽样了几个网页内容进行查看，发现效果确实不错。
+    3.  **content** : 网页正文内容是个很难去抽取的工作，所以我们调用了一个库WebCollector,它是一个爬虫框架，
+                      但是其中有个正文抽取的功能效果很不错，报告上说有99%的正文抽取正确率，
+                      我们随机抽样了几个网页内容进行查看，发现效果确实不错。
 
     4.  **links** : 网页存在许多链接，链接上面的文字本身也是一种可以参考的信息，所以我们对于所有的`a`标签也建立一个links域
 
@@ -213,7 +213,7 @@ PageRank的计算公式为
 
 $$PageRank^{(k)}(n)=\alpha\\times\frac{1}{N}+(1-\alpha)\\times \sum\limits_{i→n}\frac{PageRank^{(k-1)}(i)}{Outdegree(i)}$$
 
-本实验中我们设定参数\\(\alpha=XX\\), \\(N=XX\\)。
+本实验中我们设定参数\\(\alpha=0.15\\), \\(N=20\\)。
 
 将计算出的pr值作为lucene的各个document的boost值，同lucene的BM25算法相结合起来，能够取得更优的排序结果。
 
