@@ -1,7 +1,9 @@
 # 校园搜索引擎构建 设计文档
 
-计45 李昊阳 2014011421
-计45 王龙涛 
+计45 **李昊阳** 2014011421
+计45 **王龙涛** 2014011406
+
+[TOC]
 
 ## 实验介绍
 
@@ -27,7 +29,7 @@
 
 #### 项目准备
 
-- 需要安装maven工具，以下载依赖包
+**需要安装maven工具，以下载依赖包**
 
 ```Bash
 $ mvn clean
@@ -35,7 +37,9 @@ $ mvn package
 $ mvn dependency:copy-dependencies
 ```
 
-- Tomcat8在Eclipse中的配置,流程如下
+#### 项目配置
+
+- Tomcat8在*Eclipse*中的配置,流程如下
 
 1. 创建Runtime Environment
 
@@ -60,18 +64,135 @@ $ mvn dependency:copy-dependencies
 - Eclipse 配置项目
 
 ```Bash
-1. File -> New -> Others... -> Web -> Dynamic Web Project -> 选择项目根目录文件夹，Target Runtime Environment -> Next -> Next -> 修改WebContent至WebRoot -> Finish
-2. 
+1. 打开项目 -> Dynamic Web Project -> 选择Target Runtime选择Tomcatv8.0 -> 
+	两次Next -> 修改WebContent至WebRoot -> Finish
+2. 添加jar包，位于targer/dependency目录下
+3. 配置部署文件夹(Deployment Assembly) :
+	/build/classes			WEB-INF/classes
+	/target/dependency		WEB-INF/lib
+	/WebRoot				/
 ```
 
+#### 项目结构
+
+```Bash
+├── build/
+│   └── classes/				java编译生成文件目录
+├── conf/						配置文件目录
+├── forIndex/					索引目录
+├── pom.xml						maven配置文件
+├── README.md					README
+├── report.md					项目报告
+├── src							项目源码
+├── target/
+│   └── dependency/				jar包所在位置
+└── WebRoot/					网站根目录
+    ├── servlet/				网站css,js等静态文件目录
+    ├── thusearch.jsp			搜索主页
+    ├── thushow.jsp				搜索页面
+    └── WEB-INF/				网站配置文件目录
+```
 ## 实验工具
 
+因为本项目使用maven下载依赖包，所以实验使用的工具均可以在pom.xml文件中进行查看
 
-## 基本功能的实现
+#### WebCollector
 
-### 数据抓取
+​	网页爬虫框架，使用其中的正文提取功能
 
-## 扩展功能的实现
+#### ansj_seg
+
+​	中文分词库，效果不错
+
+#### pdfbox, bcprov-jdk15
+
+​	pdf解析工具
+
+#### poi, poi-ooxml-schemas, poi-scratchpad, poi-ooxml
+
+​	微软文档(doc,docx)解析工具
+
+#### lucene-core
+
+​	网站开源框架
+
+#### jsoup
+
+​	html网页解析工具
+
+#### ikanalyzer
+
+​	中文分词工具
+
+#### javax.servlet-api
+
+​	java servlet所需的jar包,调试用
+
+
+## 基本功能
+
+###  数据抓取
+
+#### Heritrix
+
+基本上同介绍ppt上面所说配置相同，只是把接受的url从`news.tsinghua.edu.cn`改为了`*.tsinghua.edu.cn`,并且种子也新增了如下：
+
+```Bash
+http://news.tsinghua.edu.cn/ # 清华新闻
+http://info.tsinghua.edu.cn/ # 信息门户
+http://yz.tsinghua.edu.cn/   # 研究生招生网
+http://life.tsinghua.edu.cn/ # 生命科学院
+http://www.tsinghua.edu.cn/  # 官网主页
+http://www.sem.tsinghua.edu.cn/ # 经管主页
+http://www.law.tsinghua.edu.cn/ # 法学院主页
+http://www.tup.tsinghua.edu.cn/ # 出版社
+http://postinfo.tsinghua.edu.cn/node/ # 内网信息
+http://academic.tsinghua.edu.cn/ # 教学门户
+http://learn.tsinghua.edu.cn/   # 教学门户
+http://friend.cic.tsinghua.edu.cn/ # 计算机实验室主页
+http://student.tsinghua.edu.cn/ # 学生清华
+http://myhome.tsinghua.edu.cn/ # 我们的家园
+```
+
+可能是种子太多的缘故，我们爬取的url速度很慢，目前总共爬取了31G,共计8万个文件，4万个html，之后就没有在进行爬取了。
+
+### 基于概率模型的内容排序算法
+
+图片检索实验中使用的lucene版本为3.5.0,版本过老，原先我们项目是基于图片检索实验框架的，但是后来因为maven支持的IKAnalyzer版本过高，同LUCENE_35不兼容，所以我们把lucene包升级至4.7.2。那么原先的实验框架需要大改，我们重新对实验框架进行调整，花费了较多的时间和精力。新框架使用lucene47内置BM25算法进行内容排序。
+
+### 基于HTML结构的分域权重
+
+建立索引的时候，我们对html结构进行了分析并不同的域，详细情况如下：
+
+    1.  **title** : html的标题属性设置为title域
+
+    2.  **keywords** : 对html中的h1-h6单独设置一个keyword域
+
+    3.  **content** : 网页正文内容是个很难去抽取的工作，所以我们调用了一个库WebCollector,它是一个爬虫框架，但是其中有个正文抽取的功能效果很不错，报告上说有99%的正文抽取正确率，我们随机抽样了几个网页内容进行查看，发现效果确实不错。
+
+    4.  **links** : 网页存在许多链接，链接上面的文字本身也是一种可以参考的信息，所以我们对于所有的`a`标签也建立一个links域
+
+> 注意：对于pdf,doc等之类的文档来说，我们只建立了title和content域。
+
+最后，对于各个域，通过小范围的数据测试结果，我们最终将权重设置如下：
+
+```Bash
+<title : keywords : content : links> = <100.0f : 10.0f : 5.0f : 1.0f>
+```
+
+能够得到一个比较好的搜索结果，使得标题符合搜索关键词的网页能够更加靠前，同时，关键词和内容匹配的更全面的网页也能取得一个比较好的评分
+
+### 基于PageRank的链接结构分析
+
+我们在建立索引的时候，首先对于网页内容的链接结构进行分析，然后在调用pagerank接口离线计算各个网页的pagerank值，并将计算出的pr值作为lucene的各个document的boost值，同lucene的BM25算法相结合起来，能够取得更优的排序结果。
+
+![screenshot from 2017-06-02 01-36-58](https://cloud.githubusercontent.com/assets/11888413/26692687/358025b0-46c7-11e7-8db4-c81db3992937.png)
+
+![screenshot from 2017-06-02 01-39-31](https://cloud.githubusercontent.com/assets/11888413/26692800/9883e4f8-46c7-11e7-97ab-f71bbf7d3f44.png)
+
+从上图结果可以看出，搜索的时候，官网出现的概率变大了许多，那是因为官网存在许多入链，增加了pagerank评分，从而使的搜索结果变得更靠前的缘故。
+
+## 扩展功能
 
 
 ### 前端美化
@@ -80,7 +201,17 @@ $ mvn dependency:copy-dependencies
 - 使用Ajax增强实时交互的能力；
 - 各个部件的布局参照Google，Baidu，搜索框和相关搜索部件悬浮于界面上不随滚轮滑动而滑动；
 - 不同尺寸大小的窗口的适应；
-- 搜索结果的正文高亮；
+- 搜索结果的正文或标题高亮；
+
+### 多类型文档解析
+
+我们实现了对不同类型文档的解析：doc, docx, pdf, xml等。
+
+![screenshot from 2017-06-02 02-27-24](https://cloud.githubusercontent.com/assets/11888413/26694768/26d399b4-46ce-11e7-85b2-ed286a4e6dfb.png)
+
+上图中搜索`饥荒`一词时，出现两个看似奇怪的网页，打开链接才知道，原来是两份pdf，这两份pdf中均有`饥荒`一词，下图是第二个链接打开之后的搜索`饥荒`的结果。
+
+![screenshot from 2017-06-02 02-46-40](https://cloud.githubusercontent.com/assets/11888413/26695516/c7cfe3ac-46d0-11e7-9324-f6c06c5e3e7e.png)
 
 ### 图片显示
 
@@ -94,13 +225,13 @@ $ mvn dependency:copy-dependencies
 
 在原有的实验框架中使用的分词工具是IkAnalyzer，但是我们发现这个工具一些词汇上的分词结果并不好，所以我们就尝试使用了另外的中文分词工具Ansj。为了更好地对比这两个分词工具的性能，我们选择了若干查询词，对比使用这两种工具后分别给出的结果：
 
-| 分词结果 | IkAnalyzer | Ansj | 哪个更好 | 
-| :---: | :----: | :----: | :----: |
-| 贵系 | <系><贵> | <贵><系> | 一样 | 
-| 计算机 | <计算机><计算><算机> | <计算机> | Ansj | 
-| 方便面 | <方便面><面><方便> | <方便面> | Ansj | 
-| 王龙涛（人名）| <王><龙><涛> | <王龙涛> | Ansj | 
-| 什么搜索引擎好 | <什么><搜索><引擎><好><搜索引擎><索引> | <什么><搜索引擎><好> | Ansj | 
+|  分词结果   |        IkAnalyzer         |     Ansj      | 哪个更好 |
+| :-----: | :-----------------------: | :-----------: | :--: |
+|   贵系    |          <系><贵>           |    <贵><系>     |  一样  |
+|   计算机   |       <计算机><计算><算机>       |     <计算机>     | Ansj |
+|   方便面   |       <方便面><面><方便>        |     <方便面>     | Ansj |
+| 王龙涛（人名） |         <王><龙><涛>         |     <王龙涛>     | Ansj |
+| 什么搜索引擎好 | <什么><搜索><引擎><好><搜索引擎><索引> | <什么><搜索引擎><好> | Ansj |
 
 
 从上面的表格中可以看出，IkAnalyzer具有分词过于碎片化，存在重复的分词结果，而却不能识别人名的问题，但是Ansj在这些方面表现的都更好。改进了分词结果之后，搜索出的结果也会更能符合用户的要求。
@@ -112,6 +243,13 @@ $ mvn dependency:copy-dependencies
 ![buquanzgr](https://cloud.githubusercontent.com/assets/13219956/26686925/06c9742e-4721-11e7-8b99-87bc372a9abe.gif)
 
 前端部分时刻检测用户输入，当用户的查询词发生变化时就通过Ajax传给后端，后端进行检索并返回给前端`json`格式的列表，即为自动补全的词汇列表。
+
+后端自动补全词检索算法如下：
+
+ 	1. 提取所有网页**正文**单词
+ 	2. 统计计算单词的词频
+ 	3. 按照词频进行排序，取出Top 6000的词汇，存入文件
+ 	4. 前端提供搜索词x，按照排序进行搜索前缀为x的单词列表返回
 
 ### 查询词纠错
 
@@ -125,6 +263,27 @@ $ mvn dependency:copy-dependencies
 
 ![ysbg](https://cloud.githubusercontent.com/assets/13219956/26691538/13548198-4730-11e7-9108-e6ef1f3333a3.png)
 
+后端进行查询词纠错使用基于Q-gram的到排列表算法，
+
+首先计算两个字符串的**距离**,定义如下：
+
+```Bash
+假设两个字符串能通过 k 次修改、添加、删除一个字符的操作互相转化,则称这两个串的编辑距离为 k。
+```
+
+求串 a 和串 b 的距离可以使用动态规划的方法。用 f[i, j]表示串a 的前 i 个字符和串 b 的前 j 个字符之间的编辑距离。那么:
+
+- a 进行添加操作(b 进行删除操作),转移到 f[i+1, j];
+- a 进行删除操作(b 进行添加操作),转移到 f[i, j+1];
+- a 进行修改操作(或不操作),转移到 f[i+1, j+1]。
+
+最后f[|a|, |b|]就是串 a 和串 b 的编辑距离。
+
+考虑到对于每一个查询词，同所有串计算距离的效率太低。改进之后，先统计所有子串，两个相近的字符串，必定有很多相似的子串。因而取出串a的所有连续长度为Q的子串Q-Gram,如果a,b相似，那么b一定包含a的很多子串。
+
+基于这个思路，我们建立了一个所有单词子串的倒排列表。当存在一个搜索词query的时候，拿串query的所有子串去倒排列表中搜索，取出和query至少拥有T个公共子串Q-Gram的字符串，那么这些串是很有可能与query相似的。接着在对这些串进行动态规划求出距离，最后将距离小于ED的词按照词频排序，取出前几个单词。
+
+实际操作过程中,由于长的词需要纠错的字符个数大,短的词需要纠错的字符个数小,因此 ED 值会设为查询词长度*0.2 这样动态的值,以保证纠错的合理性。
 
 ### 相关词推荐
 
@@ -145,6 +304,17 @@ $ mvn dependency:copy-dependencies
 
 ![xgjinrong](https://cloud.githubusercontent.com/assets/13219956/26691778/f37d20e0-4730-11e7-84c8-0a2f3f343ca2.png)
 
+首先定义**相关性**：如果两个单词出现在同一个网页中，那么他们被定义为是相关的。
+
+假设查询词为 q,定义关键词 p 和查询词 q 同时出现的文档个数为$doc_{freq}(q, p)$。如果直接使用$doc_{freq}(q, p)$作为相关度的度量,那么会出现所有查询词的相关词都是“的”、“是”等没有信息量的词,因为他们几乎出现在所有的网页中。
+
+这时候可以借鉴一下 TF/IDF 模型,将$doc_{freq}(q, p)$作为 TF 的值,通过求TF/IDF 的值来平衡常用词带来的干扰。但是这时又会出现一个新的问题,如果一个很生僻的词恰好和查询词在某一个网页中共同存在,那么它的TF/IDF 值就是 1。然而根据定义,TF/IDF 的值不会超过 1,因此这个生僻词就会成为最佳答案,然而其实它和查询词并不相关。
+
+因此我们对 TF/IDF 公式做了一个修正,最终关键词 p 相对于查询词q 来讲其相关度定义为
+$$
+r(p, q) = {co(p, q) \over \sqrt{idf(p)}}
+$$
+这个公式中,即修正了常用词频繁出现的问题,也解决了生僻词被选为最佳答案的问题,再根据实际数据调整参数之后，总体效果显示不错。
 
 ### 语音输入
 
@@ -158,7 +328,7 @@ $ mvn dependency:copy-dependencies
 
 ![luyinen](https://cloud.githubusercontent.com/assets/13219956/26686705/5e4bf61e-4720-11e7-8804-1a092c609bcb.gif)
 
-###### 注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。
+**注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。**
 
 ## 实验感想
 

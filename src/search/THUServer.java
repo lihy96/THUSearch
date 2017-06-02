@@ -177,7 +177,7 @@ public class THUServer extends HttpServlet{
 		String[] absContent=null;
 		String[] imgPaths = null;
 
-		String[] autoComplete=null;
+//		String[] autoComplete=null;
 		String[] recommendWords=_simWords.toArray(new String[_simWords.size()]);
 		String[] spellCheckWords=_corrList.toArray(new String[_corrList.size()]);
 		
@@ -200,14 +200,14 @@ public class THUServer extends HttpServlet{
 			paths = new String[htmls.length];
 			absContent = new String[htmls.length];
 			imgPaths = new String[htmls.length];
-			autoComplete = new String[htmls.length];
+//			autoComplete = new String[htmls.length];
 //			spellCheckWords = new String[htmls.length];
 			
 //			imgPaths[0] = "main2.png";
 //			imgPaths[1] = "bj2.jpeg";
-			autoComplete[0] = "buquan 1";
-			autoComplete[1] = "buquan 2";
-			autoComplete[2] = "buquan 3";
+//			autoComplete[0] = "buquan 1";
+//			autoComplete[1] = "buquan 2";
+//			autoComplete[2] = "buquan 3";
 //			spellCheckWords[0] = "spell1";
 //			spellCheckWords[1] = "spell22";
 			//end of lihy96's code 
@@ -224,7 +224,7 @@ public class THUServer extends HttpServlet{
 			request.setAttribute("htmlTags", tags);
 			request.setAttribute("htmlPaths", paths);
 			request.setAttribute("imgPaths", imgPaths);
-			request.setAttribute("autoComplete", autoComplete);
+//			request.setAttribute("autoComplete", autoComplete);
 			request.setAttribute("absContent", absContent);
 			request.setAttribute("recommendWords", recommendWords);
 			request.setAttribute("spellCheckWords", spellCheckWords);
