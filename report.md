@@ -105,7 +105,7 @@ $ mvn dependency:copy-dependencies
 
 #### 2.4.2 搜索结果显示页面
 
-![result](https://cloud.githubusercontent.com/assets/13219956/26708123/54fa6ae4-477c-11e7-9e4b-5af9985053ad.png)
+![result](https://cloud.githubusercontent.com/assets/13219956/26710882/b6f89a46-478f-11e7-9864-23d84d52eeb4.png)
 
 ## 3. 实验工具
 
@@ -359,7 +359,7 @@ $$
 
 我们实现的语音输入除了基础的语音识别功能之外，还具有自动识别用户语言的功能（目前的默认设置的识别语言包括中文、英文）。此外，随着用户说出的词的不断增多，之前的词也会自动调整成更合适的选项，从下图可以看出语音输入可以较为准确地识别出用户说的查询词。
 
-![luyinen](https://cloud.githubusercontent.com/assets/13219956/26686705/5e4bf61e-4720-11e7-8804-1a092c609bcb.gif)
+![luyinen2](https://cloud.githubusercontent.com/assets/13219956/26711102/bf3467c0-4790-11e7-8357-2117bb623dc3.gif)
 
 **注：使用语音输入功能是需要联网并且用户打开麦克风的使用权限，如果是第一次点击录音按钮，浏览器会给出提示框询问是否允许使用麦克风，选择"允许"即可。**
 
